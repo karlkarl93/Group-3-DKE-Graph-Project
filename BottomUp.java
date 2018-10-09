@@ -8,7 +8,7 @@ import java.util.*;
 			}
 
 public class BottomUp {
-	public final static boolean DEBUG = true;
+	public static boolean DEBUG;
 		
 		public final static String COMMENT = "//";
 		
@@ -20,7 +20,23 @@ public class BottomUp {
 				System.exit(0);
 				}
 
-				
+			Scanner in = new Scanner(System.in);
+			
+			System.out.println("Do you want to enter Debug mode or not ? (enter 'y' or 'n')");
+			String c = in.next().toLowerCase();
+			
+			while ((! c.equals("y")) && (! c.equals("n")) && (! c.equals("yes")) && (! c.equals("no"))) {
+				System.out.println("Please enter 'y' or 'n'! Do you want to enter DEBUG mode or not ?");
+				c = in.next().toLowerCase();
+			}
+			
+			if (c.equals("y") | c.equals("yes")) {
+				DEBUG = true;
+			}
+			else {
+				DEBUG = false;
+			}
+			
 			String inputfile = args[0];
 			
 			boolean seen[] = null;
