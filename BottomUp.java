@@ -120,10 +120,12 @@ public class BottomUp {
 				System.exit(0);
 				}
 
+			int notUsed = 0;
 			for( int x=1; x<=n; x++ )
 				{
 				if( seen[x] == false )
 					{
+					notUsed ++;
 					if(DEBUG) System.out.println(COMMENT + " Warning: vertex "+x+" didn't appear in any edge : it will be considered a disconnected vertex on its own.");
 					}
 				}
@@ -137,13 +139,15 @@ public class BottomUp {
 
 			//! INSERT YOUR CODE HERE!
 			
-			int chromaNumber = chromaticNumber(e, n, m);
+			if (DEBUG && (notUsed > 0)) System.out.println("There are " + (n-notUsed) + " actually used points.");
+			
+			int chromaNumber = chromaticNumber(e, n, m, notUsed);
 			
 			System.out.println("The chromatic number of Karloid is " + chromaNumber);
 			
 		}
 	
-	public static int chromaticNumber(ColEdge[] e, int n, int m) {
+	public static int chromaticNumber(ColEdge[] e, int n, int m, int notUsed) {
 		//If empty graph, then we need only 1 color
 		if (m == 0) {
 			if (DEBUG) {
@@ -151,12 +155,17 @@ public class BottomUp {
 			}
 			return 1;
 		}
-		//Else if complete graph (maximum number of connections), then we need n colors
-		else if (m == (n*(n-1)/2)) {
+		//Else ifwe have a complete graph (maximum number of connections), then we need n colors
+		else if (m == ((n-notUsed)*(n-notUsed-1)/2)) {
 			if (DEBUG) {
-				System.out.println("Maximum edges, everything inter-connected!");
+				if (notUsed == 0) {
+					System.out.println("Maximum edges, everything inter-connected!");
+				}
+				else {
+					System.out.println("Excluding the vertices not connected at all, everything is inter-connected!");
+				}
 			}
-			return n;
+			return (n-notUsed);
 		}
 		//Otherwise, it's complicated
 		else {
