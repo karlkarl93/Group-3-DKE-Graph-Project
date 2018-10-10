@@ -204,7 +204,12 @@ public class BottomUp {
 		if (res == -1) {
 			System.out.println("Interrupted Karloid");
 			long start = System.currentTimeMillis();
-			res = BottomUpWorkingMethod(e, n, 0, result, n-1, start, time/2);
+			try {
+				res = BottomUpWorkingMethod(e, n, 0, result, n-1, start, time/2);
+			}
+			catch (StackOverflowError stackOverflow) {
+				res = -1;
+			}
 			
 			if (res == -1) {
 				System.out.println("Interrupted BottomUpWorkingMethod too");
@@ -359,8 +364,6 @@ public class BottomUp {
 				}
 			}
 		}
-		
-		System.out.println("The result is " + Arrays.deepToString(result));
 		
 		return usedColors(result);
 	}
