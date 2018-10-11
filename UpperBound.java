@@ -11,63 +11,61 @@ public class UpperBound {
     public static void main(String[] args) {
         Vertex[] vertices = readGraph(args);
         
-        int provisionIndex = 1; // Referring to the current vertex that tries to disseminate its colour among the other vertices
-        int numberOfVariableVertices = n;
-        int upperBound = n;
+        int provisionIndex = 1; // referring to the current vertex that tries to provide its colour to the other vertices
+        int numberOfVariableVertices = vertices.length; // referring to the vertices that have not yet provided or inherited their colour
+        int upperBound = vertices.length;
         
         // Descend the upper bound
         while (numberOfVariableVertices > 1) { // trying to descend as long as there are vertices that have a variable colour
-        
-            if (!vertices[provisionIndex].isVariable) { provisionIndex ++ } // jumping to the next vertex if the current vertex is frozen, else try disseminating
+            
+            if (!vertices[provisionIndex].isVariable) { provisionIndex ++; } // jumping to the next vertex if the current vertex is frozen
             else {
                 
-                boolean didDisseminateColour = false;
+                boolean didProvideColour = false;
                 
                 // Try to disseminate the colour of the current providing vertex
                 for (int candidateIndex = 1; candidateIndex < vertices.length; candidateIndex++) {
                     
-                    // Select the vertices that are variable and different from the current providing vertex
+                    // Select the vertices that are variable and different from the current providing vertex. They are identified as candidates to inherit the colour of the current providing vertex
                     if (vertices[candidateIndex].isVariable && candidateIndex != provisionIndex) {
-                    
+                        
                         // Check whether the candidate vertex can be recoloured
                         boolean vertexCanBeRecoloured = true;
                         int edgeIndex = 0;
-                        
+
                         // Disqualify candidate if it edges with the providing vertex
                         while (vertexCanBeRecoloured && edgeIndex < vertices[provisionIndex].edges.length) {
-                            if (candidateVertex == vertices[provisionIndex].edges[e] { vertexCanBeRecoloured = false; }
+                            if (candidateIndex == vertices[provisionIndex].edges[edgeIndex]) { vertexCanBeRecoloured = false; }
                             edgeIndex ++;
                         }
                         
                         // Disqualify candidate if it edges with a third vertex that has the same colour as the providing vertex
                         edgeIndex = 0;
-                        while (vertexCanBeRecoloured && edge < vertices[candidateIndex].edges.length) {
-                            int thirdVertexIndex = vertices[candidateIndex].edges[e];
+                        while (vertexCanBeRecoloured && edgeIndex < vertices[candidateIndex].edges.length) {
+                            int thirdVertexIndex = vertices[candidateIndex].edges[edgeIndex];
                             if (vertices[thirdVertexIndex].colour == vertices[provisionIndex].colour) { vertexCanBeRecoloured = false; }
                             edgeIndex ++;
                         }
                         
                         // Recolour the candidate if possible
-                        if vertexCanBeRecoloured {
+                        if (vertexCanBeRecoloured) {
                             vertices[candidateIndex].colour = vertices[provisionIndex].colour;
                             vertices[candidateIndex].isVariable = false;
+                            upperBound --;
                             numberOfVariableVertices --;
-                            didDisseminateColour = true;
+                            didProvideColour = true;
                         }
                     }
                 }
                 
-                // Freeze the variable that tried to disseminate its colour
-                vertices[candidateIndex].isVariable = false;
-                numberOfVariableVertices
-                
-                // Reduce the upper bound if possible
-                if (didDisseminateColour) {
-                    numberOfVariableVertices--;
-                }
+                // Freeze the variable that tried to provide its colour
+                vertices[provisionIndex].isVariable = false;
+                numberOfVariableVertices --;
             }
+        }
+        
+        System.out.println("Upper bound: " + upperBound);
     }
-    
     public static Vertex[] readGraph(String[] args) {
         if( args.length < 1 )
         {
