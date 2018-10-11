@@ -7,7 +7,7 @@ import java.util.*;
 			int v;
 			}
 
-public class BottomUp {
+public class BottomUp {	
 	public static boolean DEBUG;
 		
 		public final static String COMMENT = "//";
@@ -139,29 +139,208 @@ public class BottomUp {
 
 			//! INSERT YOUR CODE HERE!
 			
-			if (DEBUG && (notUsed > 0)) System.out.println("There are " + (n-notUsed) + " actually used points.");
+			if (DEBUG && (notUsed > 0)) System.out.println("\nThere are " + (n-notUsed) + " actually used points.");
 			
+			System.out.println("\nDo you want to test a specific method or launch the default chromatic Number search ? (enter 1 or 2)");
+			String option = in.next();
 			
-			int secsTime = 20;
-			//Need to add a verification to know if its the chromatic numbers or the upper bound
-			int chromaNumber = chromaticNumber(e, n, m, notUsed, secsTime);
-			
-			if (chromaNumber != -1) {
-				System.out.println("The chromatic number is " + chromaNumber);
-			}
-			else {
-				int upBound = upperBound(e, n);
+			do {
+				if (option.equals("1")) {
+					System.out.println("\nWhich method do you want to check ? (enter 'Karloid' to test Karloid or anything else to test BottomUpWorkingMethod)");
+					String methodToUse = in.next().toLowerCase();
+					
+					if (methodToUse.equals("karloid")) {
+						System.out.println("\nUsing method Karloid! \n");
+					}
+					else {
+						System.out.println("\nUsing method BottomUpWorkingMethod \n");
+					}
+					long start = System.nanoTime();
+					int chromaNumber = testChromaNumberMethod(e, n, m, notUsed, methodToUse, start, 15);
+					long end = System.nanoTime();
+					
+					System.out.printf("\nThe chromatic number is %d \nExecution Time: %f\n", chromaNumber, (double)((end-start)/Math.pow(10, 9)));
+				}
+				else if (option.equals("2")) {
+					int secsTime = 10;
 				
-				System.out.println("The upper bound is " + upBound);
-			}
+					//Try computing the chromatic number within a given time
+					int chromaNumber = chromaticNumber(e, n, m, notUsed, secsTime);
+			
+					if (chromaNumber != -1) {
+						System.out.println("The chromatic number is " + chromaNumber);
+					}
+					else {
+						int upBound = upperBound(e, n);
+					
+						System.out.println("The upper bound is " + upBound);
+					}
+				}
+				else {
+					System.out.println("Please enter a valid answer (1 for testing a specific method or 2 for running default algorithm): ");
+					option = in.next();
+				}
+			} while ((! option.equals("1")) && (! option.equals("2")));
 		}
 	
-	/*
-	n = number of points (vertices)
-	m = number of edges (connections)
-	e[0].u = 1
-	e[0].v = 2
+	/** Same as chromaticNumber, but instead of giving a limited time, the User specifies which method to use
 	*/
+	public static int testChromaNumberMethod(ColEdge[] e, int n, int m, int notUsed, String methodToUse, long start, int timeInterval) {
+		//If empty graph, then we need only 1 color
+		if (m == 0) {
+			if (DEBUG) {
+				System.out.println("There are no edges!");
+			}
+			return 1;
+		}
+		//Else if we have a complete graph (maximum number of connections), then we need n colors
+		else if (m == ((n-notUsed)*(n-notUsed-1)/2)) {
+			if (DEBUG) {
+				if (notUsed == 0) {
+					System.out.println("Maximum edges, everything inter-connected!");
+				}
+				else {
+					System.out.println("Excluding the vertices not connected at all, everything is inter-connected!");
+				}
+			}
+			return (n-notUsed);
+		}
+		//Otherwise, it's complicated
+		else {
+			return testBottomUp(e, n, methodToUse, start, timeInterval);
+		}
+	}
+	
+	/** Same as BottomUp, but instead of a given limited time, the User specifies which method to use
+	*/
+	public static int testBottomUp(ColEdge[] e, int n, String methodToUse, long start, int timeInterval) {
+		//Start with the maximum size array,
+		int[][] result = new int[n-1][n];
+		// Note: could be optimized to use limited size, then enlarge if needed
+		
+		//Initiate all the vertices on the same colour
+		for (int i=1; i <= n; i ++) {
+			result[0][i-1] = i;
+		}
+		
+		if (methodToUse.equals("karloid")) {
+			return testKarloid(e, n, result, start, timeInterval);
+		}
+		else {
+			return testBottomUpWorkingMethod(e, n, 0, result, n-1, start, timeInterval);
+		}
+	}
+	
+	/** Same as Karloid, but without limited time
+	*/
+	public static int testKarloid (ColEdge[] e, int n, int[][] result, long start, int timeInterval) {
+		int[] moved = new int[n];
+		for (int i = 0; i < result.length; i ++) {
+			for (int j = 0; j < e.length; j ++) {
+				if (DEBUG) {
+					//Every 15 seconds, print the time passed on the algorithm
+					if ((int)((System.nanoTime()-start)/Math.pow(10, 9)) > timeInterval) {
+						System.out.printf("Have been working for %d secs now \n", (timeInterval));
+						timeInterval += 15;
+					}
+				}
+				
+				if ((ArrayContains(result[i], e[j].u)) && (ArrayContains(result[i], e[j].v))) {
+					if (i == 0) {
+						Add(result[i+1], e[j].v);
+						Erase(result[i], e[j].v);
+					}
+					else {
+						if (ArrayContains(moved, e[j].v)) {
+							Add(result[i-2], e[j].v);
+							Erase(result[i], e[j].v);
+							Erase(moved, e[j].v);
+							i = 0;
+						}
+						else {
+							Add(result[i+1], e[j].v);
+							Erase(result[i], e[j].v);
+							Add(moved, e[j].v);
+						}
+					}
+				}
+			}
+		}
+		
+		if (DEBUG) {
+			System.out.println("The result is " + Arrays.deepToString(result));
+		}
+		
+		return usedColors(result);
+	}
+	
+	public static int testBottomUpWorkingMethod (ColEdge[] e, int n, int edgeToCheck, int[][] result, int min, long start, int timeInterval) {		
+		if (DEBUG) {
+			//Every 15 seconds, tell the User the time elapsed
+			if ((int)((System.nanoTime()-start)/Math.pow(10, 9)) > timeInterval) {
+				System.out.printf("Have been working for %d secs now \n", timeInterval);
+				timeInterval += 15;
+			}
+		}
+		
+		//Normally, this if will only trigger when edgeToCheck == e.length, but for security, I say if edgeToCheck >= e.length
+		if (edgeToCheck >= e.length) {
+			//Returns the amount of colors of the color assignment (result)
+			return usedColors(result);
+		}
+		else {
+			int j = 0;
+			//If result[j = 0] contains both values of the edge, (because it is not possible to have two edge points in another color)
+			if (ArrayContains(result[j], e[edgeToCheck].u) && ArrayContains(result[j], e[edgeToCheck].v)) {
+				//Separate the numbers
+
+				//n = number of colors used until now
+				int numCols = usedColors(result);
+
+				//Only try out possible options to continue if you currently have less colors than the current minimum
+				if (numCols < min) {
+					for (int i = 1; i <= numCols; i ++) {
+						boolean oneOptionFound = false;
+
+						//We only try the creation of a new color if there is no possible option to add the item toMove to an existing color
+						if ((i < numCols) | (! oneOptionFound)) {
+							if (i < result.length) {
+								if (MoveIsPossible(e, result, e[edgeToCheck].u, i)) {
+									//If option1 here is possible, then try it out
+									int[][] option1 = Move(result, j, e[edgeToCheck].u, i);
+									int numColors1 = testBottomUpWorkingMethod(e, n, edgeToCheck+1, option1, min, start, timeInterval);
+									option1 = Move(result, i, e[edgeToCheck].u, j);
+
+									if (numColors1 < min) {
+										min = numColors1;
+									}
+
+									oneOptionFound = true;
+								}
+
+								//If option2 is possible, try it out and 
+								if (MoveIsPossible(e, result, e[edgeToCheck].v, i)) {
+									int[][] option2 = Move(result, j, e[edgeToCheck].v, i);
+									int numColors2 = testBottomUpWorkingMethod(e, n, edgeToCheck+1, option2, min, start, timeInterval);
+									option2 = Move(result, i, e[edgeToCheck].v, j);
+
+									if (numColors2 < min) {
+										min = numColors2;
+									}
+
+									oneOptionFound = true;
+								}
+							}
+						}
+					}
+				}
+				return min;
+			}
+			//This gets only executed if the edge vertices are not in the same color, 
+			//therefore, nothing needs to be done to result
+			return testBottomUpWorkingMethod(e, n, edgeToCheck+1, result, min, start, timeInterval);
+		}
+	}
 	
 	public static int chromaticNumber(ColEdge[] e, int n, int m, int notUsed, int time) {
 		//If empty graph, then we need only 1 color
@@ -199,27 +378,32 @@ public class BottomUp {
 			result[0][i-1] = i;
 		}
 		
+		if (DEBUG) System.out.println("Trying to find the chromatic number using Karloid");
 		int res = Karloid(e, n, result, time/2);
 		
 		if (res == -1) {
-			System.out.println("Interrupted Karloid");
-			long start = System.currentTimeMillis();
+			if (DEBUG) System.out.println("Interrupted Karloid\n");
+			long start = System.currentTimeMillis();			
 			try {
+				if (DEBUG) System.out.println("Trying to find the chromatic number using BottomUpWorkingMethod");
 				res = BottomUpWorkingMethod(e, n, 0, result, n-1, start, time/2);
 			}
-			catch (StackOverflowError stackOverflow) {
+			catch (StackOverflowError StackOverflow) {
 				res = -1;
+				if (DEBUG) System.out.println("BottomUpWorkingMethod failed because of a Stackoverflow Error!");
 			}
-			
+				
 			if (res == -1) {
-				System.out.println("Interrupted BottomUpWorkingMethod too");
+				if (DEBUG) System.out.println("Interrupted BottomUpWorkingMethod too");
 				return -1;
 			}
 			else {
+				if (DEBUG) System.out.println("Successfully found the chromatic number using BottomUpWorkingMethod\n");
 				return res;
 			}
 		}
 		else {
+			if (DEBUG) System.out.println("Successfully found the chromatic number using Karloid\n");
 			return res;
 		}
 	}
@@ -267,7 +451,7 @@ public class BottomUp {
 	/** 
 	This method should separate the two points connected by e[edgeToCheck], if they are in the same result[x] array (that is, they share the same color).
 	It should then try each possible separation (moving e[edgeToCheck].u to any other color and moving e[edgeToCheck].v to any other color).
-	In case we can't move 
+	In case we can't move a point to a given color, we just skip that possibility.
 	
 	If the two points connected by e[edgeToCheck] are in different colors, it should just call itself to check the next edge, without changing result[][]
 	
@@ -281,8 +465,6 @@ public class BottomUp {
 		
 		//Normally, this if will only trigger when edgeToCheck == e.length, but for security, I say if edgeToCheck >= e.length
 		if (edgeToCheck >= e.length) {
-			if (DEBUG) System.out.printf("Possible result (%d colors): %s\n\n", usedColors(result), Arrays.deepToString(result));
-			
 			//Returns the amount of colors of the color assignment (result)
 			return usedColors(result);
 		}
@@ -312,7 +494,7 @@ public class BottomUp {
 									if (numColors1 < min) {
 										min = numColors1;
 									}
-
+									
 									oneOptionFound = true;
 								}
 
@@ -325,7 +507,7 @@ public class BottomUp {
 									if (numColors2 < min) {
 										min = numColors2;
 									}
-
+									
 									oneOptionFound = true;
 								}
 							}
@@ -364,7 +546,6 @@ public class BottomUp {
 				}
 			}
 		}
-		
 		return usedColors(result);
 	}
 	
@@ -405,8 +586,6 @@ public class BottomUp {
 			if (array[origin][i] == toMove) {
 				//Once we find the item we need to move,
 				notFoundToMove = false;
-				
-				if (DEBUG) System.out.printf("Moving %d from result[%d] to result[%d] \n", toMove, origin, destination);
 				
 				//Deletes the original toMove
 				array[origin][i] = 0;
