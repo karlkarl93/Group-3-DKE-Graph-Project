@@ -146,20 +146,31 @@ public class BottomUp {
 			
 			do {
 				if (option.equals("1")) {
-					System.out.println("\nWhich method do you want to check ? (enter 'Karloid' to test Karloid or anything else to test BottomUpWorkingMethod)");
-					String methodToUse = in.next().toLowerCase();
+					System.out.println("\nWhich method do you want to check ? (enter 1 to test Karloid, 2 to test BottomUpWorkingMethod or 3 to test UpperBound)");
+					String methodToUse = in.next();
 					
-					if (methodToUse.equals("karloid")) {
-						System.out.println("\nUsing method Karloid! \n");
+					if (methodToUse.equals("1") | methodToUse.equals("2")) {
+						if (methodToUse.equals("1")) {
+							System.out.println("\nUsing method Karloid! \n");
+						}
+						else if (methodToUse.equals("2")){
+							 System.out.println("\nUsing method BottomUpWorkingMethod! \n");
+						}
+						long start = System.nanoTime();
+						int chromaNumber = testChromaNumberMethod(e, n, m, notUsed, methodToUse, start, 15);
+						long end = System.nanoTime();
+
+						System.out.printf("\nThe chromatic number is %d \nExecution Time: %f\n", chromaNumber, (double)((end-start)/Math.pow(10, 9)));
 					}
 					else {
-						System.out.println("\nUsing method BottomUpWorkingMethod \n");
+						System.out.println("\nUsing method KarloidUpperBound! \n");
+						
+						long start = System.nanoTime();
+						int upBound = upperBound(e, n);
+						long end = System.nanoTime();
+						
+						System.out.printf("\nThe upper bound is %d \nExecution Time: %f \n", upBound, (double)((end-start)/Math.pow(10, 9)));
 					}
-					long start = System.nanoTime();
-					int chromaNumber = testChromaNumberMethod(e, n, m, notUsed, methodToUse, start, 15);
-					long end = System.nanoTime();
-					
-					System.out.printf("\nThe chromatic number is %d \nExecution Time: %f\n", chromaNumber, (double)((end-start)/Math.pow(10, 9)));
 				}
 				else if (option.equals("2")) {
 					int secsTime = 10;
@@ -223,7 +234,7 @@ public class BottomUp {
 			result[0][i-1] = i;
 		}
 		
-		if (methodToUse.equals("karloid")) {
+		if (methodToUse.equals("1")) {
 			return testKarloid(e, n, result, start, timeInterval);
 		}
 		else {
