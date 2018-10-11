@@ -7,13 +7,112 @@ public class UpperBound {
     public final static boolean DEBUG = false;
     
     public final static String COMMENT = "//";
-
+    
+    private static Vertex[] vertices = new Vertex[0];
+    
     public static void main(String[] args) {
-        Vertex[] vertices = readGraph(args);
         
-        int provisionIndex = 1; // referring to the current vertex that tries to provide its colour to the other vertices
+        for (int i = 1; i < 21; i++) {
+            String fileName = "Graph_" + i +".txt";
+            String[] array = {fileName};
+            vertices = readGraph(array);
+            if (i < 10) {
+                System.out.println("Graph " + i + "  " + "Upper bound: " +  findUpperBound());
+            } else {
+                System.out.println("Graph " + i + " " + "Upper bound: " +  findUpperBound());
+            }
+        }
+        
+    }
+    
+
+    // Try to descend with varying vertices as first providers for colour
+    public static int findUpperBound() {
+        int lowestUpperBound = vertices.length;
+        
+        // Loop through all vertices and set them each of them as the first providing vertex for descending towards the lowest upper bound
+        for (int startingProvisionIndex = 1; startingProvisionIndex < vertices.length; startingProvisionIndex++) {
+            int currentUpperBound = descend(startingProvisionIndex);
+            if (currentUpperBound < lowestUpperBound) {
+                lowestUpperBound = currentUpperBound;
+            }
+            
+            for (int i = 1; i < vertices.length; i++) {
+                vertices[i].isVariable = true;
+            }
+        }
+        
+        return lowestUpperBound;
+    }
+    
+    // Try to descend, starting with the vertex identified by the starting provision index
+    public static int descend(int initialProvisionIndex) { // will have values from 1...vertices.count, e.g. 5
+        
+        int lowestUpperBound = vertices.length;
+        
+        // should go from 5 to 23
+        for (int i = initialProvisionIndex; i < vertices.length; i++) {
+            int currentUpperBound = disseminate(i, lowestUpperBound);
+            if (currentUpperBound < lowestUpperBound) { lowestUpperBound = currentUpperBound; }
+        }
+        
+        // then should go from 1 to 4
+        for (int i = 1; i < initialProvisionIndex-1; i++) {
+            int currentUpperBound = disseminate(i, lowestUpperBound);
+            if (currentUpperBound < lowestUpperBound) { lowestUpperBound = currentUpperBound; }
+        }
+        
+        return lowestUpperBound;
+    }
+    
+    
+    // Try to disseminate the colour of the vertex indexed by the provision index
+    public static int disseminate(int provisionIndex, int currentUpperBound) {
+        for (int candidateIndex = 1; candidateIndex < vertices.length; candidateIndex++) {
+            
+            // Select the vertices that are variable and different from the current providing vertex. They are identified as candidates to inherit the colour of the current providing vertex
+            if (vertices[candidateIndex].isVariable && candidateIndex != provisionIndex) {
+                
+                // Check whether the candidate vertex can be recoloured
+                boolean vertexCanBeRecoloured = true;
+                int edgeIndex = 0;
+                
+                // Disqualify candidate if it edges with the providing vertex
+                while (vertexCanBeRecoloured && edgeIndex < vertices[provisionIndex].edges.length) {
+                    if (candidateIndex == vertices[provisionIndex].edges[edgeIndex]) { vertexCanBeRecoloured = false; }
+                    edgeIndex ++;
+                }
+                
+                // Disqualify candidate if it edges with a third vertex that has the same colour as the providing vertex
+                edgeIndex = 0;
+                while (vertexCanBeRecoloured && edgeIndex < vertices[candidateIndex].edges.length) {
+                    int thirdVertexIndex = vertices[candidateIndex].edges[edgeIndex];
+                    if (vertices[thirdVertexIndex].colour == vertices[provisionIndex].colour) { vertexCanBeRecoloured = false; }
+                    edgeIndex ++;
+                }
+                
+                // Recolour the candidate and freeze vertices
+                if (vertexCanBeRecoloured) {
+                    vertices[candidateIndex].colour = vertices[provisionIndex].colour;
+                    vertices[candidateIndex].isVariable = false;
+                    vertices[provisionIndex].isVariable = false;
+                    currentUpperBound -= 1;
+                }
+            }
+        }
+        
+        return currentUpperBound;
+    }
+    
+    
+    
+    
+    public static int descend(Vertex[] vertices, int startingVertexIndex, int endVertexIndex) {
+        int provisionIndex = startingVertexIndex; // referring to the current vertex that tries to provide its colour to the other vertices
         int numberOfVariableVertices = vertices.length; // referring to the vertices that have not yet provided or inherited their colour
         int upperBound = vertices.length;
+        
+        long preRunTime = System.currentTimeMillis();
         
         // Descend the upper bound
         while (numberOfVariableVertices > 1) { // trying to descend as long as there are vertices that have a variable colour
@@ -24,48 +123,16 @@ public class UpperBound {
                 boolean didProvideColour = false;
                 
                 // Try to disseminate the colour of the current providing vertex
-                for (int candidateIndex = 1; candidateIndex < vertices.length; candidateIndex++) {
-                    
-                    // Select the vertices that are variable and different from the current providing vertex. They are identified as candidates to inherit the colour of the current providing vertex
-                    if (vertices[candidateIndex].isVariable && candidateIndex != provisionIndex) {
-                        
-                        // Check whether the candidate vertex can be recoloured
-                        boolean vertexCanBeRecoloured = true;
-                        int edgeIndex = 0;
-
-                        // Disqualify candidate if it edges with the providing vertex
-                        while (vertexCanBeRecoloured && edgeIndex < vertices[provisionIndex].edges.length) {
-                            if (candidateIndex == vertices[provisionIndex].edges[edgeIndex]) { vertexCanBeRecoloured = false; }
-                            edgeIndex ++;
-                        }
-                        
-                        // Disqualify candidate if it edges with a third vertex that has the same colour as the providing vertex
-                        edgeIndex = 0;
-                        while (vertexCanBeRecoloured && edgeIndex < vertices[candidateIndex].edges.length) {
-                            int thirdVertexIndex = vertices[candidateIndex].edges[edgeIndex];
-                            if (vertices[thirdVertexIndex].colour == vertices[provisionIndex].colour) { vertexCanBeRecoloured = false; }
-                            edgeIndex ++;
-                        }
-                        
-                        // Recolour the candidate if possible
-                        if (vertexCanBeRecoloured) {
-                            vertices[candidateIndex].colour = vertices[provisionIndex].colour;
-                            vertices[candidateIndex].isVariable = false;
-                            upperBound --;
-                            numberOfVariableVertices --;
-                            didProvideColour = true;
-                        }
-                    }
-                }
+                
                 
                 // Freeze the variable that tried to provide its colour
                 vertices[provisionIndex].isVariable = false;
                 numberOfVariableVertices --;
             }
         }
-        
-        System.out.println("Upper bound: " + upperBound);
+        return upperBound;
     }
+    
     public static Vertex[] readGraph(String[] args) {
         if( args.length < 1 )
         {
