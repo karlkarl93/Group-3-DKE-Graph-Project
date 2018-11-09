@@ -1,11 +1,16 @@
 import java.util.Scanner;
 import java.lang.Math;
 import java.util.Random;
-/*class ColEdge
-	{
+
+class Edge {
 	int u;
 	int v;
-	}*/
+	
+	public Edge (int x, int y) {
+		u = x;
+		v = y;
+	}
+}
 	
 public class RandomTest{
 		
@@ -23,16 +28,40 @@ public class RandomTest{
 	int counter = 1; // 1 means it has an edge
 
 		int[][] edgeArray = new int[n][n];
+		
 	
 		
 	if ( c <= (n*(n-1))){
 		if(c >= (n-1)){
+			
+			Edge[] edges = new Edge[c];
 		while (counter <= c) {
 		// max-min = range, +1 to include the last value ((max-min)+1), +min define start value (((max-min)+1)+min)
 		// min = 1
-		int x = ran.nextInt((((n - 1)-0) +1) +0);
-		int y = ran.nextInt((((n - 1)-0) +1) +0);
+		int x = ran.nextInt(n) + 1;
+		int y = ran.nextInt(n) + 1;
 		
+		int i=0;
+		boolean notFound = true;
+		if (x == y) {
+			notFound = false;
+		}
+		
+		while (i < counter-1 && notFound) {
+			if ((edges[i].u == x && edges[i].v == y) || (edges[i].v == x && edges[i].u == y)) {
+				notFound = false;
+			}
+			else {
+				i ++;
+			}
+		}
+		
+		if (notFound) {
+			
+			edges[i] = new Edge(x, y);
+			counter ++;
+		}
+		/*
 			if ( edgeArray[x][y] ==0) {
 				if (edgeArray[y][x] != 1) {
 					if (x != y) {
@@ -57,6 +86,14 @@ public class RandomTest{
 		}
 				
 	}
+	*/
+		}
+		
+		//Show the result of edges
+		for (int i=0; i < edges.length; i ++) {
+			System.out.println("Edge #"+(i+1) + ": " + edges[i].u + " - " + edges[i].v);
+		}
+		
 }
 		else {
 		System.out.println("Too few edges");
@@ -79,10 +116,9 @@ public class RandomTest{
 				System.out.println(rows);
 				
 			if (rows == 0) {
-				int f = a;
 				for(int d = 0; d < edgeArray.length; d++) {
 					
-					colms += edgeArray[d][f];
+					colms += edgeArray[d][a];
 				}
 				if (colms == 0) {
 					return true;
@@ -95,11 +131,3 @@ public class RandomTest{
 		return false;	
 	}
 }
-
-// this will print out  a n*n matrix (n = amount of vertices by user) like this:
-// 0101
-// 0001
-// 1000
-// 0000
-// this means: 1 is connected to 3, 2 to 1, 2 to 4, 1 to 4
-// if there are rows and columns which contain only 0's, then it SHOULD give an error and say to the user to try this input again...
