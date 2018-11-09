@@ -95,3 +95,11 @@ public class RandomTest{
 		return false;	
 	}
 }
+
+// this will print out  a n*n matrix (n = amount of vertices by user) like this:
+// 0101
+// 0001
+// 1000
+// 0000
+// this means: 1 is connected to 3, 2 to 1, 2 to 4, 1 to 4
+// if there are rows and columns which contain only 0's, then it SHOULD give an error and say to the user to try this input again...
