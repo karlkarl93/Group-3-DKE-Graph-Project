@@ -53,7 +53,7 @@ public class RoundButton extends JButton
     // test it 
     public static void main(String[] args)
     {
-       JButton b = new RoundButton("test");
+       JButton b = new RoundButton("I'm a button, change my mind");
         b.setBackground(Color.white);
 
         JFrame frame = new JFrame("BUTTONNNSSSS");
