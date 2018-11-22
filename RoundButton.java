@@ -27,6 +27,7 @@ public class RoundButton extends JButton
     // paint the round background white
     protected void paintComponent(Graphics g)
     {
+        System.out.println("Painting component " + g.toString() + "\n\nCurrent color: " + g.getColor());
         g.setColor(Color.white);
         g.fillOval(0, 0, getSize().width - 1, getSize().height - 1);
         super.paintComponent(g);
