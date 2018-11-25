@@ -12,7 +12,7 @@ import javax.swing.*;
 
 public class MainMenu2
 {
-    
+    // making new buttons, panels, and frames
     JButton b1 = new JButton("Start");
     JButton b2 = new JButton("Saves");
     JButton b3 = new JButton("Exit");
@@ -25,8 +25,10 @@ public class MainMenu2
     JPanel panelcont = new JPanel();
     JPanel p1 = new JPanel();
     JPanel p2 = new JPanel();
+    // making a layout
     CardLayout cl = new CardLayout();
 
+    // setting bounds, colors, labels, etc.
     public MainMenu2()
     {
         panelcont.setLayout(cl);
@@ -77,8 +79,10 @@ public class MainMenu2
         p2.add(b7);
         p2.add(l3);
         
+        // letting the layout only show p1 with the main buttons
         cl.show(panelcont, "1");
         
+        // action listener for the start button
         b1.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0)
@@ -87,6 +91,7 @@ public class MainMenu2
             }
         });
 
+        // action listener for the back button
         b7.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0)
@@ -95,12 +100,15 @@ public class MainMenu2
             }
         });
 
+        // adding the layout to the frame
         MainFrame.add(panelcont);
         MainFrame.setVisible(true);
         MainFrame.setSize(500, 500);
         MainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     }
+
+    // test it
     public static void main(String[] args)
     {
         MainMenu2 Menu = new MainMenu2();
