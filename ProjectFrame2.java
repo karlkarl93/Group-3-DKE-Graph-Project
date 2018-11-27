@@ -23,10 +23,10 @@ public class ProjectFrame2
     JButton mode3 = new JButton("Game mode 3");
     JButton quit = new JButton("Quit");
     JButton pause = new JButton("Pause");
-    JLabel introduction = new JLabel();
-    JLabel description1 = new JLabel();
-    JLabel description2 = new JLabel();
-    JLabel description3 = new JLabel();
+    JLabel introduction = new JLabel("<html>Please select the game mode you want to play.<html>");
+    JLabel description1 = new JLabel("<html>Game mode 1<br> <br>To The Bitter End<br>   <br>Description :<br>You will have to colour the graph as quickly as possible.<br>You will not be allowed to finish until the minimum number of colours has been reached.<html>");
+    JLabel description2 = new JLabel("<html>Game mode 2<br> <br>Best Upper Bound<br>   <br>Description :<br>You will be given a fixed amount of time.<br>You will have to find a colouring with as few colours as possible in the given time.<html>");
+    JLabel description3 = new JLabel("<html>Game mode 3<br> <br>Random Order<br>   <br>Description :<br>You will have to pick the colours of the vertices in the order that the computer generated randomly for the vertices.<br>Once the colour of a vertex has been chosen, it cannot be change again.<br>Your goal is to use as few colours as possible.<html>");
     JPanel MainPanel = new JPanel();
     JPanel GameChooser = new JPanel();
     JPanel GameScreen = new JPanel();
@@ -47,46 +47,43 @@ public class ProjectFrame2
         mode1.setForeground(new Color(62,118,236));
         mode1.setFont(myFont);
         GameChooser.add(mode1);
-        GameChooser.setLayout(null);
+        //GameChooser.setLayout(null);
 
         mode2.setBounds(565,y-250,150,80);
         mode2.setForeground(new Color(238,16,16));
         mode2.setFont(myFont);
         GameChooser.add(mode2); 
-        GameChooser.setLayout(null);
+        //GameChooser.setLayout(null);
 
         mode3.setBounds(960,y-250,150,80);
         mode3.setForeground(new Color(23,154,19));
         mode3.setFont(myFont);
         GameChooser.add(mode3);
-        GameChooser.setLayout(null);  
+        //GameChooser.setLayout(null);  
 
         //Add the text to the GameChooser panel
-        introduction.setText("<html>Please select the game mode you want to play.<html>");
         introduction.setBounds((x/2)-225,20,450,80);
-        introduction.setForeground (Color.black);
+        introduction.setForeground(Color.black);
         introduction.setFont(new Font("SansSerif Plain", Font.BOLD, 18));
         GameChooser.add(introduction);
-        GameChooser.setLayout(null);
+            //it was here
 
-        description1.setText("<html>Game mode 1<br> <br>To The Bitter End<br>   <br>Description :<br>You will have to colour the graph as quickly as possible.<br>You will not be allowed to finish until the minimum number of colours has been reached.<html>");
         description1.setBounds(95,140,300,250);
         description1.setForeground (new Color(62,118,236));
         description1.setFont(new Font("SansSerif Plain", Font.BOLD, 12));
         GameChooser.add(description1);
         
-
-        description2.setText("<html>Game mode 2<br> <br>Best Upper Bound<br>   <br>Description :<br>You will be given a fixed amount of time.<br>You will have to find a colouring with as few colours as possible in the given time.<html>");
         description2.setBounds(490,130,300,250);
         description2.setForeground (new Color(238,16,16));
         description2.setFont(new Font("SansSerif Plain", Font.BOLD, 12));
         GameChooser.add(description2);
 
-        description3.setText("<html>Game mode 3<br> <br>Random Order<br>   <br>Description :<br>You will have to pick the colours of the vertices in the order that the computer generated randomly for the vertices.<br>Once the colour of a vertex has been chosen, it cannot be change again.<br>Your goal is to use as few colours as possible.<html>");
         description3.setBounds(885,150,300,250);
         description3.setForeground (new Color(23,154,19));
         description3.setFont(new Font("SansSerif Plain", Font.BOLD, 12));
         GameChooser.add(description3);
+
+        GameChooser.setLayout(null);
 
         //Add GameChooser panel to the MainPanel
         MainPanel.add(GameChooser, "GameChooser");
@@ -104,18 +101,15 @@ public class ProjectFrame2
         MainPanel.add (PauseScreen, "PauseScreen");
         
         //PAUSESCREEN PANEL
-        JLabel timeEl = new JLabel();
-        timeEl.setText("<html>Time Elapsed: <html>");
+        JLabel timeEl = new JLabel("<html>Time Elapsed: <html>");
         timeEl.setBounds(490,150,200,35);
         timeEl.setFont(new Font("SansSerif Plain", Font.BOLD, 12));
         
-        JLabel usedCol = new JLabel();
-        usedCol.setText("<html># Of Used Colors: <html>");
+        JLabel usedCol = new JLabel("<html># Of Used Colors: <html>");
         usedCol.setBounds(490,200,200,35);
         usedCol.setFont(new Font("SansSerif Plain", Font.BOLD, 12));
         
-        JLabel vertCol = new JLabel();
-        vertCol.setText("<html># Of Vertices Colored: <html>");
+        JLabel vertCol = new JLabel("<html># Of Vertices Colored: <html>");
         vertCol.setBounds(490,250,200,35);
         vertCol.setFont(new Font("SansSerif Plain", Font.BOLD, 12));
         
@@ -144,7 +138,6 @@ public class ProjectFrame2
         //will be switched with the gamescreen panel.
         mode1.addActionListener(new ActionListener()
         {
-           
             public void actionPerformed(ActionEvent e)
             {
                 CL.show(MainPanel, "GameScreen");
@@ -193,8 +186,5 @@ public class ProjectFrame2
         ProjectFrame.setLayout(null);
     }
 
-    public static void main(String[] args)
-    {
-        ProjectFrame2 Project = new ProjectFrame2();
-    }
+
 }
