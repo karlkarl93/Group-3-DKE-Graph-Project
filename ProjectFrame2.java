@@ -3,12 +3,18 @@ import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.Component;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.Color;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import javax.swing.*;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.DefaultBoundedRangeModel;
+import java.util.Hashtable;
 
 
 public class ProjectFrame2
@@ -31,6 +37,10 @@ public class ProjectFrame2
     JPanel GameChooser = new JPanel();
     JPanel GameScreen = new JPanel();
     JPanel PauseScreen = new JPanel();
+    
+    JPanel userMenu = new JPanel();
+    JPanel graphShow = new JPanel();
+    JButton hint = new JButton("I'm lost, give me a hint");
     
     CardLayout CL = new CardLayout();
 
@@ -87,19 +97,88 @@ public class ProjectFrame2
 
         //Add GameChooser panel to the MainPanel
         MainPanel.add(GameChooser, "GameChooser");
-        
-        pause.setBounds(x-160,y-150,120,80);
-        pause.setForeground(new Color(23,154,19));
-        pause.setFont(myFont);
-        GameScreen.add(pause);
-        GameScreen.setLayout(null);
 
         //Add GameScreen panel to MainPanel
         MainPanel.add(GameScreen, "GameScreen");
 
         //Add PauseScreen to MainPanel
         MainPanel.add (PauseScreen, "PauseScreen");
+
+        //Add GameScreen to MainPanel
+        MainPanel.add(GameScreen, "GameScreen");
         
+        //GAME SCREEN PANEL
+        //main panel where both the userMenu and game panel will be on. when pushed on the game mode button, this is the panel that we have to switch to.
+        GameScreen.add(userMenu);
+        GameScreen.setLayout(new BorderLayout());
+        GameScreen.add(userMenu, BorderLayout.EAST);
+        GameScreen.add(graphShow, BorderLayout.WEST);
+
+        //the panel which the user uses for colors, edges, vertecis, pause, and hint
+        userMenu.setPreferredSize(new Dimension(350, 720));
+        userMenu.setBackground(Color.blue);
+        userMenu.setLayout(null);
+        pause.setBounds(100, 550, 150, 35);
+        hint.setBounds(80, 400, 200, 35);
+        userMenu.add(pause);
+        userMenu.add(hint);
+
+        //SLIDERS
+        JPanel sliderPanel = new JPanel();
+        JLabel label = new JLabel("Number of vertices is: ");
+        JLabel label2 = new JLabel("Number of edges is: ");
+        JSlider slider1 = new JSlider(0, 40);
+        JSlider slider2 = new JSlider(0, 60);
+
+        slider1.setMajorTickSpacing(10);
+        slider1.setMinorTickSpacing(5);
+        slider1.setPaintTicks(true);
+        slider1.setPaintLabels(true);
+        
+        slider2.setMajorTickSpacing(15);
+        slider2.setMinorTickSpacing(5);
+        slider2.setPaintTicks(true);
+        slider2.setPaintLabels(true);
+
+        Hashtable position = new Hashtable();
+        position.put(0, new JLabel("0"));
+        position.put(20, new JLabel("20"));
+        position.put(40, new JLabel("40"));
+        position.put(60, new JLabel("60"));
+
+        slider1.setLabelTable(position);
+        slider2.setLabelTable(position);
+
+        slider1.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e) 
+            {
+                label.setText("Number of vertices is: " + ((JSlider)e.getSource()).getValue());
+            }
+        });
+
+        slider2.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e) 
+            {
+                label2.setText("Number of edges is: " + ((JSlider)e.getSource()).getValue());
+            }
+        });
+        
+        JButton accept = new JButton("Accept");
+        //accept.addActionListener(newActionListener(){})}; accept the input from the sliders
+        sliderPanel.add(slider1, BorderLayout.NORTH);
+        sliderPanel.add(label, BorderLayout.NORTH);
+        sliderPanel.add(slider2, BorderLayout.CENTER);
+        sliderPanel.add(label2, BorderLayout.CENTER);
+        sliderPanel.add(accept, BorderLayout.EAST);
+        userMenu.add(sliderPanel);
+        sliderPanel.setBounds(50, 200, 250, 150);
+        
+        //the panel where the graph will be shown
+        graphShow.setPreferredSize(new Dimension(930, 720));
+        graphShow.setBackground(Color.red);
+
         //PAUSESCREEN PANEL
         JLabel timeEl = new JLabel("<html>Time Elapsed: <html>");
         timeEl.setBounds(490,150,200,35);
@@ -148,7 +227,6 @@ public class ProjectFrame2
         //with the pause screen panel.
         pause.addActionListener(new ActionListener()
         {
-         
             public void actionPerformed(ActionEvent e)
             {
                 CL.show(MainPanel, "PauseScreen");
@@ -157,7 +235,6 @@ public class ProjectFrame2
 
         cont.addActionListener(new ActionListener()
         {
-            
             public void actionPerformed(ActionEvent e)
             {
                 CL.show(MainPanel, "GameScreen");
@@ -169,12 +246,10 @@ public class ProjectFrame2
         //game mode.
         quit.addActionListener(new ActionListener()
         {
-            
             public void actionPerformed(ActionEvent e)
             {
                 CL.show(MainPanel, "GameChooser");
             }
-
         });
 
         ProjectFrame.setTitle("Introduction Board");
@@ -183,8 +258,6 @@ public class ProjectFrame2
         ProjectFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ProjectFrame.setVisible(true);
         ProjectFrame.setResizable(false);
-        ProjectFrame.setLayout(null);
+        ProjectFrame.setLocationRelativeTo(null);
     }
-
-
 }
