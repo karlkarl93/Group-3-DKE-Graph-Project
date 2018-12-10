@@ -18,7 +18,7 @@ public class GameMode1 extends GameMode {
 		In this GameMode, the game is only over if the User currently uses a number of colors equivalent to the chromatic number (and is thus not greater)
 	*/
 	public void isGameOver() {
-		if (currentGraph.colors.length == currentGraph.chromaticNumber) {
+		if ((currentGraph.colors.length-1 == currentGraph.chromaticNumber) && (currentGraph.blankVertices.length == 0)) {
 			gameOver = true;
 			TestGraph.updateGameEndScreen();
 			TestGraph.CL.show(TestGraph.mainPanel, "GameEndScreen");

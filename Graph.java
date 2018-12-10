@@ -11,15 +11,15 @@ public class Graph {
      @version %I%,%G%
     */
 	boolean debug = false;
-	private int n;
-	private int m;
+	protected int n;
+	protected int m;
 	protected Edge[] edges;
-	private int notUsed;
+	protected int notUsed;
 	protected int chromaticNumber;
 	protected Vertex[] vertices;
     protected Vertex[] coloredVertices = new Vertex[0];
     protected Vertex[] blankVertices;
-    protected int[] colors = new int[0];//{0};
+    protected int[] colors = {0};
 	
 	/** Constructor for Graph objects, with two parameters:
 		@param numVertices, the number of vertices in the graph

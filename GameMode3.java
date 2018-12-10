@@ -25,12 +25,4 @@ public class GameMode3 extends GameMode {
 			TestGraph.CL.show(TestGraph.mainPanel, "GameEndScreen");
 		}
 	}
-	
-	/** Should check whether that vertex is the one that the User is required to color next,
-			then if it is, call the super method,
-			otherwise, make a pop-up or warn the User in some way
-	*/
-	public void colorVertex (int vertexIndex) {
-		
-	}
 }

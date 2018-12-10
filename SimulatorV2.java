@@ -32,11 +32,14 @@ class SimulatorV2 extends JPanel {
 		
 		//Initialize this JPanel, set the Size
 		this.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
+		
+		//Repaint the graph to cover previous drawings
+		this.repaint();
 	}
 
 	/** Shows the Graph
 	*/
-    protected void showGraph(Graph graph) {
+    protected void showGraph(Graph graph, boolean isGameMode3) {
 		this.edges = graph.edges;
 		this.graph = graph;
         
@@ -48,12 +51,18 @@ class SimulatorV2 extends JPanel {
 		
 		//Create all the buttons, and add them to this JPanel
 		for (int i = 1; i < Positions[0].length; i++) {
-            vertexButtons[i] = new VertexButton(graph.vertices[i]);
-            vertexButtons[i].setBackground(Color.lightGray);
-            vertexButtons[i].addActionListener(new VertexRecolorListener());
-            vertexButtons[i].setBounds((int) (canvasWidth/2 + Positions[0][i] - 15), (int) (canvasHeight/2 +Positions[1][i] - 15), 30, 30);
-            this.add(vertexButtons[i]);
-        }
+			vertexButtons[i] = new VertexButton(graph.vertices[i]);
+			vertexButtons[i].setBackground(Color.lightGray);
+			
+			if (! isGameMode3) {
+				vertexButtons[i].addActionListener(new VertexRecolorListener());
+			}
+			else {
+				vertexButtons[i].addActionListener(new RandomOrderVertexRecolorListener(i));
+			}
+			vertexButtons[i].setBounds((int) (canvasWidth/2 + Positions[0][i] - 15), (int) (canvasHeight/2 +Positions[1][i] - 15), 30, 30);
+			this.add(vertexButtons[i]);
+		}
 		
 		//To refresh the JPanel and actually show the graph
 		this.repaint();
@@ -76,6 +85,47 @@ class SimulatorV2 extends JPanel {
 			}
 			//Else, do nothing
 		}
+	}
+	
+	/** Listener for the VertexButtons for GameMode3
+	*/
+	class RandomOrderVertexRecolorListener implements ActionListener {
+		private int vertexIndex;
+		private boolean vertexColored = false;
+		
+		public RandomOrderVertexRecolorListener (int x) {
+			vertexIndex = x;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			if ((vertexIndex == 1) || ((graph.vertices[vertexIndex-1].color != Vertex.DEFAULT_BLANK_COLOR) && !vertexColored)) {
+				VertexButton button = (VertexButton) e.getSource();
+				
+				//Check if the coloring is legal
+				if (graph.checkIfColorIsLegalForVertex(button.vertex, currentColor)) {
+					//Recolor the button
+					TestGraph.colorButton(button, currentColor);
+					graph.setColor(button.vertex, currentColor);
+					
+					//Check if the game is over
+					TestGraph.game.isGameOver();
+					
+					//Show the next Vertex to be colored
+					showVertexToColor(vertexIndex+1);
+					
+					//Set vertexColored to true, as the User has colored the vertex and thus is not allowed to recolor it anymore
+					vertexColored = true;
+				}
+				//Else, do nothing
+			}
+		}
+	}
+	
+	/** Should use some visual effect to display the next Vertex to be colored in GameMode3
+		@param vertexIndex, the index of the vertex that should be marekd
+	*/
+	public void showVertexToColor(int vertexIndex) {
+		
 	}
 	
 	/** Resets the color of all vertices
@@ -169,14 +219,21 @@ class SimulatorV2 extends JPanel {
 			this.vertex = vertex;
 			setPreferredSize(new Dimension(30,30));
 			setBorder(null);
+			setContentAreaFilled(false);
 		}
 		
 		protected void paintComponent(Graphics g) {
 			Graphics2D g2D = (Graphics2D) g;
 			g2D.setColor(getBackground());
 			g2D.fillOval(0, 0, getSize().width - 1, getSize().height - 1);
+			super.paintComponent(g);
 			//g2D.setStroke(new BasicStroke(4));
 			//g2D.drawOval(2, 2, getSize().width - 4, getSize().height - 4);
+		}
+		
+		protected void paintOrder (Graphics g) {
+			g.setColor(Color.black);
+			g.drawOval(0, 0, getSize().width-1, getSize().height-1);
 		}
 	}
 }

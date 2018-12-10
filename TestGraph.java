@@ -205,7 +205,7 @@ public class TestGraph {
 		//Create the JLabel timer, which should show the time
 		timer.setFont(new Font(fontName, fontStyle, 16));
 		timer.setBounds(435, 10, 60, 30);
-		GameScreen.add(timer);
+		//GameScreen.add(timer);
 		
 		//Create the canvas (to show the Graph)
 		canvas = new SimulatorV2(930, 720);
@@ -513,18 +513,26 @@ public class TestGraph {
 			graph = null;								//Reset the graph at null
 			
 			//Create a new GameMode object from the same class as previously
-			if (game.getClass().getName() == "GameMode1") {
+			if (game instanceof GameMode1) {
 				game = new GameMode1();
 			}
-			else if (game.getClass().getName() == "GameMode2") {
+			else if (game instanceof GameMode2) {
 				game = new GameMode2();
 			}
 			else {
 				game = new GameMode3();
 			}
 			
+			//Remove the old simulator
+			GameScreen.remove(canvas);
+			
 			//Reset the simulator / create a new one
 			canvas = new SimulatorV2(930, 720);
+			
+			//And add it to the JPanel
+			GameScreen.add(canvas, BorderLayout.WEST);
+			
+			GameScreen.
 			
 			//Show the GameScreen again
 			CL.show(mainPanel, "GameScreen");
@@ -567,11 +575,11 @@ public class TestGraph {
 				String[] inputFile = {graphFile.getPath()};
 				graph = ReadGraphV2.readGraph(inputFile);
 				
-				if () 
-					graph.chromaticNumber = chromaticNumberV2.chromaticNum(graph);
+				if (graph.n < 50)
+					graph.chromaticNumber = ChromaticNumberV2.chromaticNum(graph);
 				
 				game.currentGraph = graph;
-				canvas.showGraph(graph);
+				canvas.showGraph(graph, game instanceof GameMode3);
 				game.startTimer();
 			}
 			//Else, the operation was cancelled, the User closed the window without selecting a file
@@ -590,7 +598,7 @@ public class TestGraph {
 			graph.chromaticNumber = ChromaticNumberV2.chromaticNum(graph);
 			
 			game.currentGraph = graph;
-			canvas.showGraph(graph);
+			canvas.showGraph(graph, game instanceof GameMode3);
 			game.startTimer();
 		}
 	}
@@ -671,7 +679,7 @@ public class TestGraph {
 		int numColoredVertices;
 		int numVertices;
 		if (graph != null) {
-			userCols = graph.colors.length;
+			userCols = graph.colors.length-1;
 			numColoredVertices = graph.coloredVertices.length;
 			numVertices = graph.coloredVertices.length + graph.blankVertices.length;
 		}
@@ -694,21 +702,23 @@ public class TestGraph {
 			- conclusion[0] and conclusion[1] which tell the User whether he/she won or lost
 	*/
 	public static void updateGameEndScreen() {
-		int userCols = graph.colors.length;
+		int userCols = graph.colors.length-1;
 		int chromaNumber = graph.getChromaticNumber();
 		
 		time2.setText("Time taken: " + game.TimeToString(game.timeElapsed));
 		userColors2.setText("You used " + userCols + " colors");
-		chromaNum.setText("The chromatic number was: " + chromaNumber);
 		percentVerticesColored.setText(String.format("You colored %02d/%02d vertices", graph.coloredVertices.length, graph.coloredVertices.length + graph.blankVertices.length));
 		
-		if (userCols == chromaNumber) {
-			conclusion[0].setText("Great !");
-			conclusion[1].setText("You managed to only use as many colours as the chromatic number");
-		}
-		else {
-			conclusion[0].setText("Bad luck !");
-			conclusion[1].setText("You used " + (userCols-chromaNumber) + " more colors than were needed");
+		if (graph.n < 50) {
+			chromaNum.setText("The chromatic number was: " + chromaNumber);
+			if (userCols == chromaNumber) {
+				conclusion[0].setText("Great !");
+				conclusion[1].setText("You managed to only use as many colours as the chromatic number");
+			}
+			else {
+				conclusion[0].setText("Bad luck !");
+				conclusion[1].setText("You used " + (userCols-chromaNumber) + " more colors than were needed");
+			}
 		}
 	}
 }
