@@ -532,7 +532,7 @@ public class TestGraph {
 			//And add it to the JPanel
 			GameScreen.add(canvas, BorderLayout.WEST);
 			
-			GameScreen.
+			
 			
 			//Show the GameScreen again
 			CL.show(mainPanel, "GameScreen");
