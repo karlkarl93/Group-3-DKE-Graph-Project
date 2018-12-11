@@ -105,8 +105,14 @@ class SimulatorV2 extends JPanel {
 			vertexIndex = x;
 		}
 		
+		/** Reactivate the click possibility, used when the GameMode3 is called again after a click on "retry" for example
+		*/
+		public void activateClick() {
+			vertexColored = false;
+		}
+		
 		public void actionPerformed(ActionEvent e) {
-			if (((vertexIndex == 1) && (! vertexColored)) || ((graph.vertices[vertexIndex-1].color != Vertex.DEFAULT_BLANK_COLOR) && !vertexColored)) {
+			if (((vertexIndex == 1) && (! vertexColored)) || ((vertexIndex != 1) && (graph.vertices[vertexIndex-1].color != Vertex.DEFAULT_BLANK_COLOR) && !vertexColored)) {
 				VertexButton button = (VertexButton) e.getSource();
 				
 				//Check if the coloring is legal
@@ -159,8 +165,15 @@ class SimulatorV2 extends JPanel {
 			vertexButtons[i].repaint();
 		}
 		
-		if (isGameMode3)
+		if (isGameMode3) {
+			//Loop through all the buttons that have been colored
+			for (int i = 1; i < vertexToColor; i ++) {
+				vertexButtons[i].resetClick();
+			}
+			
+			//Set the vertex that should be colored next back to the 1st one
 			vertexToColor = 1;
+		}
 	}
 
     private void positionVerticesInCircle(int vertexCount) {
@@ -235,6 +248,18 @@ class SimulatorV2 extends JPanel {
 	*/
 	public class VertexButton extends JButton {
 		Vertex vertex;
+		ActionListener listener;
+		
+		public void addActionListener (ActionListener a) {
+			listener = a;
+			super.addActionListener(a);
+		}
+		
+		public void resetClick () {
+			if (listener instanceof RandomOrderVertexRecolorListener) {
+				((RandomOrderVertexRecolorListener)listener).activateClick();
+			}
+		}
 		
 		public VertexButton(Vertex vertex) {
 			this.vertex = vertex;

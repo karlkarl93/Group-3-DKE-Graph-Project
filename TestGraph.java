@@ -18,6 +18,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import java.awt.GridLayout;
 import javax.swing.UIManager;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.BasicStroke;
 
 public class TestGraph {
 	//Frame size parameters
@@ -82,7 +85,7 @@ public class TestGraph {
 		//GameScreen items
 	private static SimulatorV2 canvas;
 	private static JPanel colorPalette = new JPanel();
-	private static JButton[] buttons = new JButton[colors.length];
+	private static colorPaletteButton[] colorButtons = new colorPaletteButton[colors.length];
 	private static JLabel timer = new JLabel("00:00");
 	private static JSlider vertexSlider = new JSlider();
 	private static JSlider edgeSlider = new JSlider();
@@ -231,12 +234,11 @@ public class TestGraph {
 		//Create all the buttons
 		for (int i = 0; i < colors.length; i ++) {
 			//Create the button, set its original color and add it a listener
-			buttons[i] = new JButton();
-			buttons[i].setBackground(colors[i]);
-			buttons[i].addActionListener(new ColorListener(i));
+			colorButtons[i] = new colorPaletteButton(i+1);
+			colorButtons[i].setBackground(colors[i]);
 			
 			//Add it to the colorPalette JPanel
-			colorPalette.add(buttons[i]);
+			colorPalette.add(colorButtons[i]);
 		}
 		
         //Create the slider Panel containing the sliders
@@ -453,21 +455,58 @@ public class TestGraph {
 		mainPanel.add(GameEndScreen, "GameEndScreen");
 	}
 	
-	/** Listener for the color buttons of the color Palette
+	/** colorPaletteButton is a special class for the buttons of the Color Palette. 
+		It automatically adds a ColorListener to it
 	*/
-	static class ColorListener implements ActionListener {
+	static class colorPaletteButton extends JButton {
+		private boolean redBorder = false;
 		private int colorIndex;
 		
-		/** Constructor specifying the index of the color represented by this button
-		*/
-		public ColorListener (int colorIndex) {
-			this.colorIndex = colorIndex;
+		public colorPaletteButton(int x) {
+			colorIndex = x;
+			this.addActionListener(new ColorListener(x-1));
 		}
 		
-		/** On click of this color button, it modifies the currently selected color
+		protected void setMarked (boolean value) {
+			redBorder = value;
+			this.repaint();
+		}
+		
+		protected void paintBorder (Graphics g) {
+			//Cast it to a Graphics 2D
+			Graphics2D g2D = (Graphics2D) g;
+			
+			//Modify the color
+			if (redBorder) {
+				g2D.setColor(Color.white);
+				g2D.setStroke(new BasicStroke(4));
+			}
+			else {
+				g2D.setColor(Color.gray);
+				g2D.setStroke(new BasicStroke(1));
+			}
+			
+			//Then draw the border
+			g2D.drawRect(0, 0, getSize().width-1, getSize().height-1);
+		}
+		
+		/** Listener for the color buttons of the color Palette
 		*/
-		public void actionPerformed (ActionEvent event) {
-			SimulatorV2.currentColor = colorIndex;
+		static class ColorListener implements ActionListener {
+			private int colorIndex;
+			
+			/** Constructor specifying the index of the color represented by this button
+			*/
+			public ColorListener (int colorIndex) {
+				this.colorIndex = colorIndex;
+			}
+			
+			/** On click of this color button, it modifies the currently selected color
+			*/
+			public void actionPerformed (ActionEvent event) {
+				SimulatorV2.currentColor = colorIndex;
+				((colorPaletteButton)event.getSource()).setMarked(false);
+			}
 		}
 	}
 	
@@ -659,8 +698,22 @@ public class TestGraph {
 			}
 			else {
 				//Color Hint
-				//Compute the color to be used
-				//Select it as currentColor
+				if (graph == null) {
+					colorButtons[0].setMarked(true);
+				}
+				else if (graph.coloredVertices.length > 0) {
+					//Compute the color to be used
+					int[] colors = graph.sortColorsByProminence(graph.coloredVertices);
+					
+					//Show it to the User
+					if (colors.length > 0)
+						colorButtons[colors[0]].setMarked(true);
+					else 
+						System.out.println("No color found");
+				}
+				else {
+					colorButtons[0].setMarked(true);
+				}
 			}
 		}
 	}
