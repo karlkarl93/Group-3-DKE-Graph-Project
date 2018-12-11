@@ -22,6 +22,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 
+//To be removed later
+import java.util.Arrays;
+
 public class TestGraph {
 	//Frame size parameters
 	private static final int FRAME_WIDTH = 1280;
@@ -34,7 +37,7 @@ public class TestGraph {
 	private static final int maxVertices = 30;
 	
 	//Initialize the array of default colors
-	private static Color[] colors = {
+	protected static Color[] colors = {
                         new Color(244,67,54),
                         new Color(233,30,99),
                         new Color(156,39,176),
@@ -703,13 +706,14 @@ public class TestGraph {
 				}
 				else if (graph.coloredVertices.length > 0) {
 					//Compute the color to be used
+					System.out.println("Colored vertices: " + Arrays.toString(graph.coloredVertices));
 					int[] colors = graph.sortColorsByProminence(graph.coloredVertices);
 					
 					//Show it to the User
 					if (colors.length > 0)
 						colorButtons[colors[0]].setMarked(true);
 					else 
-						System.out.println("No color found");
+						//Compute + Show the first not-used color
 				}
 				else {
 					colorButtons[0].setMarked(true);

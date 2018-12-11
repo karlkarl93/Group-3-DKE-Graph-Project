@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 class Auxilaries {
     
     // MARK: Methods
@@ -19,23 +21,43 @@ class Auxilaries {
         return matrixC;
     }
     
-    protected static int[] sortIntsInDescendingOrder(int[] oldArray) {
-        int[] newArray = new int[oldArray.length];
-        for (int i = 0; i < oldArray.length; i++) {
-            // Find the index of the highest value
-            int maximumValue = 0;
-            int maximumIndex = 0;
-            for (int j = 0; j < oldArray.length; j++) {
-                if (maximumValue < oldArray[j]) {
-                    maximumValue = oldArray[j];
+    protected static int[] sortIntsInDescendingOrder(int[] colorFrequency, int[] usedColorsIndexes) {
+        int[] newArray = new int[usedColorsIndexes.length];
+		int i = 0;
+		while (i < usedColorsIndexes.length) {
+			// Find the index of the highest value
+            int maximumIndex = i;
+			int j = i+1;
+			while (j < usedColorsIndexes.length) {
+				if (colorFrequency[usedColorsIndexes[maximumIndex]] < colorFrequency[usedColorsIndexes[j]]) {
                     maximumIndex = j;
                 }
+				j ++;
             }
-            newArray[i] = maximumIndex;
-            oldArray[maximumIndex] = 0;
+			
+			colorFrequency[maximumIndex] = colorFrequency[i];
+            newArray[i] = usedColorsIndexes[maximumIndex];
+			
+			i++;
         }
         return newArray;
     }
+	
+	/** Checks whether the array, from the startIndex on, 
+	*/
+	protected static boolean leftoverArrayEmpty (int[] array, int startIndex) {
+		boolean res = true;
+		while (res && (startIndex < array.length)) {
+			if (array[startIndex] != 0) {
+				res = false;
+			}
+			else {
+				startIndex ++;
+			}
+		}
+		
+		return res;
+	}
     
     protected static int[] removeZeros(int[] oldArray) {
         int[] newArray = new int[0];

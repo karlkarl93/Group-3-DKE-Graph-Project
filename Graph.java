@@ -19,7 +19,7 @@ public class Graph {
 	protected Vertex[] vertices;
     protected Vertex[] coloredVertices = new Vertex[0];
     protected Vertex[] blankVertices;
-    protected int[] colors = new int[0];//{0};
+    protected int[] colors = new int[0];
 	
 	/** Constructor for Graph objects, with two parameters:
 		@param numVertices, the number of vertices in the graph
@@ -66,17 +66,44 @@ public class Graph {
 	
 	protected int[] sortColorsByProminence(Vertex[] vertices) {
         // Loop through vertices and increment the rank of a color when a vertex has this color
-        int[] colorRanks = new int[vertices.length];
+        int[] colorRanks = new int[TestGraph.colors.length];
         
-        for (int i = 1; i < vertices.length; i++) {
+        for (int i = 0; i < vertices.length; i++) {
+			System.out.println(vertices[i] + ", color: " + vertices[i].color);
             if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) colorRanks[vertices[i].color]++;
         }
-        // Loop through the color rank array and sort the indices by value in descending order
-        colorRanks = Auxilaries.sortIntsInDescendingOrder(colorRanks);
+		
+		// Loop through the color rank array and retrieve the indexes of the colors used by the User so far in decreasing order of number of vertices colored (in that color)
+        colorRanks = Auxilaries.sortIntsInDescendingOrder(colorRanks, colors);
         
-        // Remove zeros trailing zeros that occur when their are less colors than vertices
-        colorRanks = Auxilaries.removeZeros(colorRanks);
-        return colorRanks;
+		int[] result = new int[colorRanks.length];
+		int length = 0;
+		//Check if these colors are all usable (that is, that there exists at least 1 vertex that can be colored in that color)
+		for (int i = 0; i < colorRanks.length; i ++) {
+			boolean colorIsUsable = false;
+			
+			//Check if there are still vertices that can be colored in these colors
+			int j = 0;
+			while (j < blankVertices.length && !colorIsUsable) {
+				if (checkIfColorIsLegalForVertex(blankVertices[j], colorRanks[i])) {
+					colorIsUsable = true;
+				}
+				j++;
+			}
+			
+			if (colorIsUsable) {
+				result[length++] = colorRanks[i];
+			}
+		}
+		
+		//Reduce result to its actual length
+		int[] newResult = new int[length];
+		for (int i = 0; i < length; i ++) {
+			newResult[i] = result[i];
+		}
+		result = newResult;
+		
+        return result;
     }
 	
 	protected void setColor(Vertex vertex, int color) {
