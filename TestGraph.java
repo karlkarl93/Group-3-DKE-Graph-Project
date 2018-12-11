@@ -17,6 +17,7 @@ import javax.swing.JFileChooser;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import java.awt.GridLayout;
+import javax.swing.UIManager;
 
 public class TestGraph {
 	//Frame size parameters
@@ -99,6 +100,14 @@ public class TestGraph {
 	private static JLabel[] conclusion = new JLabel[2];
 	
 	public static void main (String[] args) {
+		//Get independent Look and Feel
+		try {
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		//Create the frame
 		frame = new JFrame("Graph Colouring Game");
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
