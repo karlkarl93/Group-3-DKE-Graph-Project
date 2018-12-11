@@ -96,7 +96,7 @@ public abstract class GameMode {
 				
 				//Otherwise, if one of the previous edge is already the same, then it is also unvalid
 				int i = 0;
-				while ((i < counter-1) && valid) {
+				while ((i < counter) && valid) {
 					if ((edges[i].u == x && edges[i].v == y) || (edges[i].v == x && edges[i].u == y)) {
 						valid = false;
 					}
