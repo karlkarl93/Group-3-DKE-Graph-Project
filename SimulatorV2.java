@@ -106,7 +106,7 @@ class SimulatorV2 extends JPanel {
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			if ((vertexIndex == 1) || ((graph.vertices[vertexIndex-1].color != Vertex.DEFAULT_BLANK_COLOR) && !vertexColored)) {
+			if (((vertexIndex == 1) && (! vertexColored)) || ((graph.vertices[vertexIndex-1].color != Vertex.DEFAULT_BLANK_COLOR) && !vertexColored)) {
 				VertexButton button = (VertexButton) e.getSource();
 				
 				//Check if the coloring is legal
