@@ -465,16 +465,24 @@ public class TestGraph {
 		private boolean redBorder = false;
 		private int colorIndex;
 		
+		/** Constructor for the button with one parameter
+			@param x, the index of the button 
+		*/
 		public colorPaletteButton(int x) {
 			colorIndex = x;
 			this.addActionListener(new ColorListener(x-1));
 		}
 		
+		/** This function can set the button to be marked with a white border or not
+			@param value, the boolean value whether the button should be marked or un-marked
+		*/
 		protected void setMarked (boolean value) {
 			redBorder = value;
 			this.repaint();
 		}
 		
+		/** Overwrite the paintBorder method to paint or not paint the white border
+		*/
 		protected void paintBorder (Graphics g) {
 			//Cast it to a Graphics 2D
 			Graphics2D g2D = (Graphics2D) g;
@@ -706,14 +714,10 @@ public class TestGraph {
 				}
 				else if (graph.coloredVertices.length > 0) {
 					//Compute the color to be used
-					System.out.println("Colored vertices: " + Arrays.toString(graph.coloredVertices));
 					int[] colors = graph.sortColorsByProminence(graph.coloredVertices);
 					
 					//Show it to the User
-					if (colors.length > 0)
-						colorButtons[colors[0]].setMarked(true);
-					else 
-						//Compute + Show the first not-used color
+					colorButtons[colors[0]].setMarked(true);
 				}
 				else {
 					colorButtons[0].setMarked(true);

@@ -5,7 +5,7 @@
 */
 public class GameMode2 extends GameMode {
 	//This variable represents the number of seconds given to the User to solve the graph
-	private final int time = 20;
+	private final int time = 300;
 	//
 	//IDEA: calculate time in function of the Graph's complexity ?
 	//	Something like (int)(180 + (Math.random() * numVertices * (1 + numMaxEdges/numEdges)))

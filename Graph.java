@@ -96,12 +96,39 @@ public class Graph {
 			}
 		}
 		
-		//Reduce result to its actual length
-		int[] newResult = new int[length];
-		for (int i = 0; i < length; i ++) {
-			newResult[i] = result[i];
+		//If there is at least one color that we can still use again, then
+		if (length > 0) {
+			//Reduce result to its actual length
+			int[] newResult = new int[length];
+			for (int i = 0; i < length; i ++) {
+				newResult[i] = result[i];
+			}
+			result = newResult;
 		}
-		result = newResult;
+		else {			//Otherwise, return an array with just the first color that has not been used yet
+			//Create a new array of size 1 to contain the first color that is not used so far
+			int[] newResult = new int[1];
+			boolean colorFound = true;
+			int i = 0;
+			while (i < TestGraph.colors.length && colorFound) {
+				int j = 0;
+				colorFound = false;
+				while (j < colors.length && !colorFound) {
+					if (colors[j] == i) {
+						colorFound = true;
+						System.out.println("Color found");
+					}
+					else {
+						j ++;
+					}
+				}
+				
+				if (colorFound) i++;
+			}
+			
+			if (i < TestGraph.colors.length) newResult[0] = i;
+			result = newResult;
+		}
 		
         return result;
     }
