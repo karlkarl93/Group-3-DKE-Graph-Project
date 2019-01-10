@@ -5,7 +5,11 @@ import java.util.Arrays;
 /** This class contains all the methods needed to compute the chromatic number of a given graph
 */
 public class ChromaticNumberV2 {
-	public static Map<Integer, int[]> connections;
+	protected static Map<Integer, int[]> connections;
+	
+	/*
+		NOTE !!! We suppose, in isTree(), isCycle() and the chromatic number algorithms, that connections is already set to be TestGraph.connections;
+	*/
 	
 	/** Checks if the graph is a very special case (if there are 0 edges or the maximum number of edges)
 			If this is not the case, then it calls the method computeChromaNumber, which actually computes the chromatic number.
@@ -13,6 +17,8 @@ public class ChromaticNumberV2 {
 		@param Graph g, the graph whose chromatic number we try to compute
 	*/
 	public static int chromaticNum(Graph g, int method) {
+		connections = TestGraph.connections;
+		
 		int n = g.getN();
 		int notUsed = g.getNotUsed();
 		int m = g.getM();
@@ -52,6 +58,113 @@ public class ChromaticNumberV2 {
 		return chromaNum;
 	}
 	
+	/** This method checks whether a graph has a special "tree"-structure and returns an according boolean value
+	
+		@param Graph g, the graph which we check for a "tree" structure
+		
+		@return a boolean value, true if it has a "tree"-structure, false if otherwise
+	*/
+	public static boolean isTree (Graph g) {
+		boolean isTree = true;
+		int i = 1;
+		while (i <= g.getN() && !g.seen[i]) {
+			i ++;
+		}
+		
+		boolean[] seenInTree = new boolean[g.getN() + 1];
+		ArrayList<int[]> x = new ArrayList<int[]>();
+		int[] toAdd = {0, i};
+		x.add(toAdd);
+		i = 0;
+		while (i < x.size() && isTree) {
+			seenInTree[x.get(i)[1]] = true;
+
+			//Search for the vertexIndex that is not the same as the previous one (to avoid a loop)
+			int[] connectionsOfVertex = connections.get(x.get(i)[1]);
+			int j = 0;
+			while (j < connectionsOfVertex.length && isTree) {
+				if (connectionsOfVertex[i] != x.get(i)[0]) {
+					//If this vertex was already seen, then break this loop and exit the external while loop
+					if (seenInTree[connectionsOfVertex[j]]) {
+						isTree = false;
+						break;
+					}
+					else {
+						//Add this connection to x
+						int[] toAdd2 = {x.get(i)[1], connectionsOfVertex[j]};
+						x.add(toAdd2);
+					}
+				}
+				j ++;
+			}
+			
+			//Remove the connection that was just used
+			x.remove(i);
+		}
+		
+		return isTree;
+	}
+	
+	/* This method checks whether a graph has a special "cycle"-structure and returns an according boolean value
+		
+		@param Graph g, the graph of which we check for a "cycle" structure
+		
+		@return a boolean value, true if it has a "cycle"-structure, false if otherwise
+	*/
+	public static boolean isCycle (Graph g) {
+		//First, we check if each vertex has only 2 connections
+		boolean isCycle = true;
+		int n = g.getN();
+		int i = 1;
+		while (i <= n && isCycle) {
+			if (connections.get(i).length != 2 && g.seen[i]) {
+				isCycle = false;
+			}
+			else {
+				i ++;
+			}
+		}
+		
+		//Then, check if it really is a cycle, that is, that if we start at one vertex, we pass every vertex that has connections
+		if (isCycle) {
+			boolean[] seenInCycle = new boolean[n+1];
+			
+			//Search for the first vertex that has a connection
+			i = 1;
+			while (i <= n && !g.seen[i]) {
+				i ++;
+			}
+			
+			//Then, start following the connections until we are back at the vertexIndex where we started
+			int oldX = 0;
+			int newX = i;
+			do {
+				seenInCycle[newX] = true;
+				
+				//Search for the vertexIndex that is not the same as the previous one (to avoid a loop)
+				int[] connectionsOfVertex = connections.get(newX);
+				boolean foundNewX = false;
+				i = 0;
+				while (i < connectionsOfVertex.length && !foundNewX) {
+					if (connectionsOfVertex[i] != oldX) {
+						foundNewX = true;
+						
+						//Update all variables
+						oldX = newX;
+						newX = connectionsOfVertex[i];
+					}
+					else {
+						i ++;
+					}
+				}
+			} while (newX != i);
+			
+			isCycle = Arrays.equals(g.seen, seenInCycle);
+		}
+		
+		return isCycle;
+	}
+	
 	/** One of the chromatic number algorithms - NOT FINISHED
 		It starts by coloring the vertex with the highest degree,
 			then colors its adjacentVertices, then the adjacentVertices of them, and so on until the complete graph is colored
@@ -62,7 +175,6 @@ public class ChromaticNumberV2 {
 		@return an integer, the chromatic number ?
 	*/
 	public static int concentricColoring (Graph g, int n) {
-		connections = TestGraph.connections;
 		Vertex[] vertices = g.vertices;
 		boolean[] vertexColored = new boolean[n+1];		//VertexColored has an entry at index vertexIndex equal to true if the vertex is colored, and false if not colored
 		boolean[] vertexWillBeColored = new boolean[n+1];		//vertexWillBeColored has an entry true at a certain vertexIndex index if the vertex is colored or will be colored in the next iteration

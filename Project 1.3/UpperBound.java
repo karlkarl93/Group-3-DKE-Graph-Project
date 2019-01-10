@@ -7,8 +7,8 @@ import java.util.*;
 */
 
 public class UpperBound {
-	public static int[] eigenvalues = new int[0];
-	public static Map<Integer, int[]> connections;
+	protected static int[] eigenvalues = new int[0];
+	protected static Map<Integer, int[]> connections;
 	
 	/** The general method that calls the other hidden methods that compute the upper bounds
 	

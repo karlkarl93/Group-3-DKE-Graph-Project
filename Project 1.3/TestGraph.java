@@ -180,16 +180,25 @@ public class TestGraph {
 			graph = ReadGraphV2.readGraph(args);
 			
 			connections = MapConnections.connections(graph);
+			System.out.println("Connections: ");
+			MapConnections.showConnections(connections);
+			System.out.println();
 			
 			//Print the graphs number of edges and vertices
 			System.out.println("Graph Specs: ");
 			System.out.printf("    - %d vertices\n", graph.getN());
 			System.out.printf("    - %d edges\n\n", graph.getEdges().length);
 			
+			ChromaticNumberV2.connections = connections;
+			
+			//Print the result of the check of ChromaticNumberV2.isCycle(graph)
+			boolean isTree= ChromaticNumberV2.isTree(graph);
+			System.out.println("This graph is a tree: " + isTree);
+			
 			//Search the lower bound
-			System.out.print("Lower bound: ");
-			int lowerB = lowerBound.lowerBound(graph);
-			System.out.println(lowerB + "\n");
+			//System.out.print("Lower bound: ");
+			//int lowerB = lowerBound.lowerBound(graph);
+			//System.out.println(lowerB + "\n");
 
 			//System.out.print("Chromatic number: ");
 			//int chromaticNumber = ChromaticNumberV2.chromaticNum(graph, 2);

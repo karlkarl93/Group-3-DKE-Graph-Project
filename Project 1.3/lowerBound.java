@@ -7,8 +7,8 @@ import java.io.*;
 */
 
 public class lowerBound {
-	public static int[] eigenvalues = new int[0];
-	public static Map<Integer, int[]> c;
+	protected static int[] eigenvalues = new int[0];
+	protected static Map<Integer, int[]> c;
 	
 	/** The general method that calls the other hidden algorithms to compute lower bound(s) ...
 	

@@ -2,6 +2,7 @@ import java.util.Scanner;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class ReadGraphV2 {
 	public final static boolean DEBUG = false;
@@ -21,7 +22,7 @@ public class ReadGraphV2 {
 		Edge[] edges = null;			//edges will contain the edges of the graph
 		int n = -1;						//n is the number of vertices in the graph
 		int m = -1;						//m is the number of eges in the graph
-		boolean seen[];
+		boolean seen[] = new boolean[n+1];
 		int notUsed = 0;
 		
 		Scanner in = new Scanner(System.in);
@@ -50,7 +51,6 @@ public class ReadGraphV2 {
 			}
 			
 			seen = new boolean[n+1];
-			
 			record = br.readLine();
 				
 			if(record.startsWith("EDGES = ")) {
@@ -72,6 +72,8 @@ public class ReadGraphV2 {
 				}
 				
 				edges[d] = new Edge(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+				System.out.println(edges[d]);
+				System.out.println(Arrays.toString(seen));
 				seen[edges[d].u] = true;
 				seen[edges[d].v] = true;
 				
@@ -81,7 +83,7 @@ public class ReadGraphV2 {
 			//If there is still some text after the m edges, then there is an error
 			String surplus = br.readLine();
 			if (surplus != null) {
-				if( surplus.length() >= 2 ) if(DEBUG) System.out.println(COMMENT + " Warning: there appeared to be data in your file after the last edge: '"+surplus+"'");						
+				if( surplus.length() >= 2 ) System.out.println(COMMENT + " Warning: there appeared to be data in your file after the last edge: '"+surplus+"'");						
 			}
 			
 			for (int x = 1; x <= n; x++) {
@@ -104,6 +106,6 @@ public class ReadGraphV2 {
 		//! 
 		//! there will be n vertices in the graph, numbered 1 to n
 		
-		return new Graph(edges, n, m, notUsed);
+		return new Graph(edges, n, m, notUsed, seen);
 	}
 }

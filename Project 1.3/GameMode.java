@@ -158,7 +158,7 @@ public abstract class GameMode {
 			}
 		}
 		
-		return new Graph(edges, n, m, notUsed);
+		return new Graph(edges, n, m, notUsed, seen);
 	}
 	
 	/** Based on the count of secs, compute the mins:secs form for this count and return it
