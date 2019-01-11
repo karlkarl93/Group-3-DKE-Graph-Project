@@ -57,38 +57,29 @@ public class Graph {
 	/** Colors the graph using LDO and RLF
 	*/
 	public static void RLFcoloring() {
-    int color = 0;
-    while (blankVertices.length != 0){
-      //Compute mostConnectedVertices using findVerticesWithHighestDegree
-      Vertex[] mostConnectedVertices = findVerticesWithHighestDegree(blankVertices);
-      for(int i =0; i<mostConnectedVertices.length; i++) {
-        if(mostConnectedVertices[i].color==Vertex.DEFAULT_BLANK_COLOR) {
-          colorRlF(mostConnectedVertices[i], color);
-          color ++;
-        }
-      }
+		int color = 0;
+		while (blankVertices.length != 0){
+			//Compute mostConnectedVertices using findVerticesWithHighestDegree
+			Vertex[] mostConnectedVertices = findVerticesWithHighestDegree(blankVertices);
+			for(int i =0; i<mostConnectedVertices.length; i++) {
+				if(mostConnectedVertices[i].color==Vertex.DEFAULT_BLANK_COLOR) {
+					colorRlF(mostConnectedVertices[i], color);
+					color ++;
+				}
+			}
+		}
+	}
 
-    }
-  }
-
-  public static void colorRLF(Vertex V, int colorSelected) {
-    setColor(v, colorSelected);
-      for(int i=0; i<blankVertices.length; i++) {
-        boolean isColorPossible = true;
-        int j=0;
-        while(j<blankVertices[i].restrictedColors.size()&&isColorPossible) {
-          if(blankVertices[i].restrictedColors.get(j)==colorSelected) {
-            isColorPossible = false;
-          }
-          else {
-            j++;
-          }
-          }
-          if (isColorPossible) {
-            setColor(blankVertices[i],colorSelected);
-          }
-        }
-      }
+	/** Auxiliary method for RLFcoloring
+	*/
+	public static void colorRLF(Vertex V, int colorSelected) {
+    	setColor(v, colorSelected);
+      	for(int i=0; i<blankVertices.length; i++) {
+        	if (checkIfColorIsLegalForVertex(blankVertices[i], colorSelected)) {
+            	setColor(blankVertices[i],colorSelected);
+          	}
+		}
+	}
 
 	protected boolean checkIfColorIsLegalForVertex(Vertex vertex, int color) {
         boolean isLegalColor = true;
