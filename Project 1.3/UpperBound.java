@@ -9,7 +9,9 @@ import Jama.EigenvalueDecomposition;
 */
 
 public class UpperBound {
-	protected static int[] eigenvalues = new int[0];
+	protected static EigenvalueDecomposition eigenvalues;
+	protected static double maxEigenvalue;
+	protected static double minEigenvalue;
 	protected static Map<Integer, int[]> connections;
 	
 	/** The general method that calls the other hidden methods that compute the upper bounds
@@ -25,8 +27,10 @@ public class UpperBound {
 		connections = TestGraph.connections;
 		if (method == 1) {
 			return upperBoundMaxDegree(g);
-		} else {
+		} else if (method == 2) {
 			return upperBoundTopDown(g);
+		} else {
+			return upperBoundEigenvalues(g);
 		}
 	}
 	
@@ -34,8 +38,8 @@ public class UpperBound {
 		Computes the eigenvalues of the adjacency matrix of the Graph (if it has not already been computed, and then)
 	*/
 	public static int upperBoundEigenvalues (Graph g) {
-		if (eigenvalues.length == 0) {
-			int[][] adj = new int[g.getN()][g.getN()];
+		if (eigenvalues == null) {
+			double[][] adj = new double[g.getN()][g.getN()];
 			Edge[] edges = g.getEdges();
 
 			//Construct the adjacency matrix
@@ -44,25 +48,28 @@ public class UpperBound {
 				adj[edges[i].v][edges[i].u] ++;
 			}
 
-			//Compute its eigenvalues
-			int[] eigenvalues = new int[g.getN()];
+			Matrix x = new Matrix(adj);
 
-			//
-			// Problemo ... -------------------------------------------------------------------------------------
-			// Would need to use a library to calculate the eigenvalues ...
-			// e.g. JAMA (http://math.nist.gov/javanumerics/jama/)
-			//
-			
+			//Compute its eigenvalues
+			EigenvalueDecomposition eigenvalues = x.eig();
+
+			/*
+			double maxEigenvalue = eigenvalues[0][0];
+			double minEigenvalue = maxEigenvalue;
+			for (int i = 1; i < eigenvalues.length; i ++) {
+				if (maxEigenvalue < eigenvalues[i]) 
+					maxEigenvalue = eigenvalues[i];
+				else if (minEigenvalue > eigenvalues[i]) 
+					minEigenvalue = eigenvalues[i];
+			}
+			*/
+
 			lowerBound.eigenvalues = eigenvalues;
+			lowerBound.maxEigenvalue = maxEigenvalue;
+			lowerBound.minEigenvalue = minEigenvalue;
 		}
 		
-		//Search out the smallest and the biggest
-		int max = eigenvalues[0];
-		for (int i = 1; i < eigenvalues.length; i ++) {
-			if (eigenvalues[i] > max) max = eigenvalues[i];
-		}
-		
-		return max + 1;
+		return (int)(maxEigenvalue + 1);
 	}
 	
 	/** One of the UpperBound methods
