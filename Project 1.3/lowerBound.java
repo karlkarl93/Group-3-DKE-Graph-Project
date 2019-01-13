@@ -8,7 +8,7 @@ import java.io.*;
 
 public class lowerBound {
 	protected static int[] eigenvalues = new int[0];
-	protected static Map<Integer, int[]> c;
+	protected static Map<Integer, int[]> connections;
 	
 	/** The general method that calls the other hidden algorithms to compute lower bound(s) ...
 	
@@ -19,6 +19,8 @@ public class lowerBound {
 		- eigenvaluesLowerBound --- Not working ---
 	*/
 	public static int lowerBound (Graph g) {
+		connections = TestGraph.connections;
+		
 		return searchBiggestCompleteSubGraph(g);
 	}
 	
@@ -76,11 +78,8 @@ public class lowerBound {
 		@return int, the found lower bound
 	*/
 	public static int searchBiggestCompleteSubGraph (Graph g) {
-		//Compute the connections map
-		c = TestGraph.connections;
-
 		//Find all subgraphs
-		int[][] subgraphs = findCompleteSubgraphs(c, g.getN(), g.getEdges());
+		int[][] subgraphs = findCompleteSubgraphs(g.getN(), g.getEdges());
 		int maxSize;
 		if (subgraphs.length > 0) {
 			maxSize = subgraphs[0].length;
@@ -110,7 +109,7 @@ public class lowerBound {
 		
 		@return int[][] a 2-Dimensional array containing all the found subgraphs
 	*/
-	public static int[][] findCompleteSubgraphs (Map<Integer, int[]> connections, int n, Edge[] edges) {
+	public static int[][] findCompleteSubgraphs (int n, Edge[] edges) {
 		//Before everything else, initialize the output
 		int[][] result = new int[n][n-1];
 		int length = 0;
@@ -134,8 +133,7 @@ public class lowerBound {
 		
 		for(int x = 0; x < toCheck.length; x ++) {
 			if ((toCheck[x][0] != 0) && (toCheck[x][1] != 0)) {
-				int[] toAdd = SearchIntersection(toCheck[x], toCheck, connections, n);
-				
+				int[] toAdd = SearchIntersection(toCheck[x], toCheck, n);
 				if (toAdd.length > 0) {
 					//Enlarge result if needed
 					if (length >= result.length) {
@@ -195,18 +193,16 @@ public class lowerBound {
 		
 		@returns the maximal clique formed with the starting points (this method is called recursively)
 	*/
-	public static int[] SearchIntersection (int[] pairsToCheck, int[][] toCheck, Map<Integer,int[]> connections, int n) {
+	public static int[] SearchIntersection (int[] pairsToCheck, int[][] toCheck, int n) {
 		int[] completeSubGraph = new int[n-1];
 		
 		int x = pairsToCheck[0];
 		int y = pairsToCheck[1];
 		int[] inter = Intersect(connections.get(x), connections.get(y));
 		
-		/* Is this part wrong ??
-		for (int i = 2; i < toCheck.length; i ++) {
-			inter = Intersect(inter, connections.get(toCheck[i]));
+		for (int i = 2; i < pairsToCheck.length; i ++) {
+			inter = Intersect(inter, connections.get(pairsToCheck[i]));
 		}
-		*/
 		
 		if (inter.length > 1) {	
 			//Then, we may have a bigger complete subgraph, and we call SearchIntersection again with all
@@ -218,16 +214,16 @@ public class lowerBound {
 			newToCheck[newToCheck.length-1] = inter[0];
 			
 			//We search an intersection for the previous points, plus a point of their intersection
-			completeSubGraph = SearchIntersection(newToCheck, toCheck, connections, n);
+			completeSubGraph = SearchIntersection(newToCheck, toCheck, n);
 		} 
 		else if (inter.length == 1) {
 			//If there is just 1 intersection to the existing points, 
 			//Then we have a complete subgraph with the points of toCheck + the point of inter
-			completeSubGraph = new int[pairsToCheck.length + 2];
+			completeSubGraph = new int[pairsToCheck.length + 1];
 			for (int i = 0; i < pairsToCheck.length; i ++) {
 				completeSubGraph[i] = pairsToCheck[i];
 			}
-			completeSubGraph[pairsToCheck.length + 1] = inter[0];
+			completeSubGraph[pairsToCheck.length] = inter[0];
 			
 			//Delete all pairs that are composed of points from the complete subgraph just found
 			for (int i = 0; i < completeSubGraph.length-1; i ++) {

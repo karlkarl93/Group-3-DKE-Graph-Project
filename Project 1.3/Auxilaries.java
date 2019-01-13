@@ -40,6 +40,7 @@ class Auxilaries {
 			
 			i++;
 		}
+		
 		return newArray;
 	}
 	

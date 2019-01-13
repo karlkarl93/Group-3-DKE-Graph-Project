@@ -72,8 +72,6 @@ public class ReadGraphV2 {
 				}
 				
 				edges[d] = new Edge(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
-				System.out.println(edges[d]);
-				System.out.println(Arrays.toString(seen));
 				seen[edges[d].u] = true;
 				seen[edges[d].v] = true;
 				

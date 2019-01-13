@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.*;
+import Jama.Matrix;
+import Jama.EigenvalueDecomposition;
 
 /*
 	NOTE !!!!! If we are to run multiple graphs in one run, then the system of using global "eigenvalues" variables needs to be modified ...
@@ -20,6 +22,7 @@ public class UpperBound {
 		- upperBoundEigenvalues --- Not working ---
 	*/
 	public static int upperBound(Graph g, int method) {
+		connections = TestGraph.connections;
 		if (method == 1) {
 			return upperBoundMaxDegree(g);
 		} else {
@@ -68,11 +71,11 @@ public class UpperBound {
 		Finally, returns the final maximum+1 as upperBound
 	*/
 	public static int upperBoundMaxDegree (Graph g) {
-		connections = TestGraph.connections;
-		int max = connections.get(1).length;
-		for (int i = 2; i <= g.getN(); i ++) {
-			if (max < connections.get(i).length) {
-				max = connections.get(i).length;
+		Vertex[] vertices = g.vertices;
+		int max = vertices[1].adjacentVertices.length;
+		for (int i = 2; i < vertices.length; i ++) {
+			if (max < vertices[i].adjacentVertices.length) {
+				max = vertices[i].adjacentVertices.length;
 			}
 		}
 		
