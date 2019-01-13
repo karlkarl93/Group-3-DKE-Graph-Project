@@ -15,20 +15,24 @@ public class Graph {
 	protected int m;
 	protected Edge[] edges;
 	protected int notUsed;
+	protected boolean[] seen;
 	protected int chromaticNumber;
 	protected Vertex[] vertices;
-  protected Vertex[] coloredVertices = new Vertex[0];
-  protected Vertex[] blankVertices;
-  protected int[] colors = {0};
+	protected Vertex[] coloredVertices = new Vertex[0];
+	protected Vertex[] blankVertices;
+	protected int[] colors = {0};
 
 	/** Constructor for Graph objects, with two parameters:
 		@param numVertices, the number of vertices in the graph
 		@param e[], the array of edges, with contains all the edge connections of the graph
 		@param notUsedVertices, the number of vertices that have no edge at all connecting them to another Vertex
 	*/
-	public Graph (Edge[] edges, int numVertices, int numEdges, int notUsedVertices) {
+	public Graph (Edge[] edges, int numVertices, int numEdges, int notUsedVertices, boolean[] usedVertices) {
 		this.edges = edges;
 		n = numVertices;
+		m = numEdges;
+		notUsed = notUsedVertices;
+		seen = usedVertices;
 
 		//Intialize the vertex arrays such that they start at index 1 (index 0 holds a null value)
 		blankVertices = new Vertex[numVertices];
@@ -49,21 +53,18 @@ public class Graph {
 			vertices[edges[i].u].appendAdjacentVertex(vertices[edges[i].v]);
 			vertices[edges[i].v].appendAdjacentVertex(vertices[edges[i].u]);
 		}
-
-		m = numEdges;
-		notUsed = notUsedVertices;
 	}
 
 	/** Colors the graph using LDO and RLF
 	*/
-	public static void RLFcoloring() {
+	public void RLFcoloring() {
 		int color = 0;
 		while (blankVertices.length != 0){
 			//Compute mostConnectedVertices using findVerticesWithHighestDegree
 			Vertex[] mostConnectedVertices = findVerticesWithHighestDegree(blankVertices);
 			for(int i =0; i<mostConnectedVertices.length; i++) {
 				if(mostConnectedVertices[i].color==Vertex.DEFAULT_BLANK_COLOR) {
-					colorRlF(mostConnectedVertices[i], color);
+					colorRLF(mostConnectedVertices[i], color);
 					color ++;
 				}
 			}
@@ -72,7 +73,7 @@ public class Graph {
 
 	/** Auxiliary method for RLFcoloring
 	*/
-	public static void colorRLF(Vertex V, int colorSelected) {
+	public void colorRLF(Vertex v, int colorSelected) {
     	setColor(v, colorSelected);
       	for(int i=0; i<blankVertices.length; i++) {
         	if (checkIfColorIsLegalForVertex(blankVertices[i], colorSelected)) {
@@ -92,19 +93,70 @@ public class Graph {
     }
 
 	protected int[] sortColorsByProminence(Vertex[] vertices) {
-        // Loop through vertices and increment the rank of a color when a vertex has this color
-        int[] colorRanks = new int[vertices.length];
+		// Loop through vertices and increment the rank of a color when a vertex has this color
+		int[] colorRanks = new int[TestGraph.colors.length];
 
-        for (int i = 1; i < vertices.length; i++) {
-            if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) colorRanks[vertices[i].color]++;
-        }
-        // Loop through the color rank array and sort the indices by value in descending order
-        colorRanks = Auxilaries.sortIntsInDescendingOrder(colorRanks);
+		for (int i = 0; i < vertices.length; i++) {
+			if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) colorRanks[vertices[i].color]++;
+		}
 
-        // Remove zeros trailing zeros that occur when their are less colors than vertices
-        colorRanks = Auxilaries.removeZeros(colorRanks);
-        return colorRanks;
-    }
+		// Loop through the color rank array and retrieve the indexes of the colors used by the User so far in decreasing order of number of vertices colored (in that color)
+		colorRanks = Auxilaries.sortIntsInDescendingOrder(colorRanks, colors);
+
+		int[] result = new int[colorRanks.length];
+		int length = 0;
+		//Check if these colors are all usable (that is, that there exists at least 1 vertex that can be colored in that color)
+		for (int i = 0; i < colorRanks.length; i ++) {
+			boolean colorIsUsable = false;
+
+			//Check if there are still vertices that can be colored in these colors
+			int j = 0;
+			while (j < blankVertices.length && !colorIsUsable) {
+				if (checkIfColorIsLegalForVertex(blankVertices[j], colorRanks[i])) {
+						colorIsUsable = true;
+				}
+				j++;
+			}
+
+			if (colorIsUsable) {
+				result[length++] = colorRanks[i];
+			}
+		}
+
+		//If there is at least one color that we can still use again, then
+		if (length > 0) {
+			//Reduce result to its actual length
+			int[] newResult = new int[length];
+			for (int i = 0; i < length; i ++) {
+				newResult[i] = result[i];
+			}
+			result = newResult;
+		}
+		else {						//Otherwise, return an array with just the first color that has not been used yet
+			//Create a new array of size 1 to contain the first color that is not used so far
+			int[] newResult = new int[1];
+			boolean colorFound = true;
+			int i = 0;
+			while (i < TestGraph.colors.length && colorFound) {
+				int j = 0;
+				colorFound = false;
+				while (j < colors.length && !colorFound) {
+					if (colors[j] == i) {
+							colorFound = true;
+					}
+					else {
+							j ++;
+					}
+				}
+
+				if (colorFound) i++;
+			}
+
+			if (i < TestGraph.colors.length) newResult[0] = i;
+			result = newResult;
+		}
+		return result;
+	}
 
 	protected void setColor(Vertex vertex, int color) {
         if (debug) System.out.println("SetColor()");
@@ -213,35 +265,36 @@ public class Graph {
         }
 				*/
 
-				Vertex maxDegree = vertices[1];
-				Vertex[] mostConnectedVertices = new Vertex[10];
-				int length = 1;
-				mostConnectedVertices[0] = max;
-				for(int i=2; i<vertices.length; i++) {
-					if(maxDegree.adjacentVertices.length<vertices[i].adjacentVertices.length) {
-						mostConnectedVertices = new Vertex[1];
-						[0] = vertices[i];
-						maxDegree = vertices[i];
+		Vertex maxDegree = vertices[1];
+		Vertex[] mostConnectedVertices = new Vertex[10];
+		mostConnectedVertices[0] = maxDegree;
+		int length = 1;
+		for(int i=2; i<vertices.length; i++) {
+			if(maxDegree.adjacentVertices.length < vertices[i].adjacentVertices.length) {
+				mostConnectedVertices = new Vertex[10];
+				mostConnectedVertices[0] = vertices[i];
+				length = 1;
+				maxDegree = vertices[i];
+			}
+			else if (maxDegree.adjacentVertices.length == vertices[i].adjacentVertices.length) {
+				if(length < mostConnectedVertices.length) {
+					Vertex[] newmCV = new Vertex[length*2];
+					for(int j = 0; j < mostConnectedVertices.length; j++) {
+						newmCV[j] = mostConnectedVertices[j];
 					}
-					else if (maxDegree.adjacentVertices.length==vertices[i].adjacentVertices.length) {
-						if(length<mostConnectedVertices.length) {
-							Vertex[]new mCV = new Vertex[length*2];
-							for(int j=0; j<mostConnectedVertices.length; j++) {
-								new mCV[j] = mostConnectedVertices[j];
-							}
-						}
-						mostConnectedVertices[length++]=vertices[i]
-							}
-					}
-					Vertex[] result = new Vertex[length];
-					for(int i=0;i<mostConnectedVertices.length; i++) {
-						for(int i=0; i<mostConnectedVertices.length; i++) {
-							return[i] = mostConnectedVertices[i];
-						}
-					}
+					mostConnectedVertices = newmCV;
 				}
+				
+				mostConnectedVertices[length++]=vertices[i];
+			}
+		}
+		
+		Vertex[] result = new Vertex[length];
+		for(int i = 0; i < mostConnectedVertices.length; i++) {
+			result[i] = mostConnectedVertices[i];
+		}
 
-        return mostConnectedVertices;
+        return result;
     }
 
 	protected Vertex[] findVerticesWithFewestColorOptions(Vertex[] vertices) {
