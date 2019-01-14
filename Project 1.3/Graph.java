@@ -21,16 +21,25 @@ public class Graph {
 	protected Vertex[] vertices;
 	protected Vertex[] coloredVertices = new Vertex[0];
 	protected Vertex[] blankVertices;
-	protected int[] colors = {0};
+	protected int[] colors = {};
 
-    protected static void main(String[] args) {
+    public static void main(String[] args) {
         Graph myGraph = ReadGraphV2.readGraph(args);
+        //int[] tmp = {0,1,3,5,2};
+        //System.out.println(myGraph.newColor(tmp));
         
-        myGraph.generateRandomColouring(myGraph.blankVertices);
-        System.out.println("Colors used during random colouring: " + myGraph.colors.length);
-        
+        //myGraph.generateRandomColouring(myGraph.blankVertices);
+        myGraph.RLFcoloringWithRandomness(0);
+        System.out.println("Colors used during random colouring: ");
+        Auxilaries.printArrayOfInts(myGraph.colors);
+        System.out.println("There are this many blank vertices left: " + myGraph.blankVertices.length + "\n");
         myGraph.localSearch(myGraph.vertices, myGraph.colors);
-        System.out.println("Colors used after local search: " + myGraph.colors.length);
+        System.out.println("Colors used after local search: ");
+        Auxilaries.printArrayOfInts(myGraph.findAssignedColors(myGraph.vertices));
+        System.out.println();
+        
+        //System.out.println(myGraph);
+        
     }
     
     protected void generateRandomColouring(Vertex[] vertices) {
@@ -38,10 +47,10 @@ public class Graph {
         for (int i = 0; i < vertices.length; i++) {
             // 2.
             findColorOptionsForSingleVertex(vertices[i]);
-            if (vertices[i].colorOptions.length == 0) vertices[i].color = colors.length;
+            if (vertices[i].colorOptions.length == 0) setColor(vertices[i], colors.length);
             else {
                 Random random = new Random();
-                vertices[i].color =  vertices[i].colorOptions[random.nextInt(vertices[i].colorOptions.length)];
+                setColor(vertices[i], vertices[i].colorOptions[random.nextInt(vertices[i].colorOptions.length)]);
             }
         }
     }
@@ -51,59 +60,6 @@ public class Graph {
         Vertex[] targetVertices = findVerticesWithSpecificColor(vertices, sortedColors[sortedColors.length-1]);
         tryToColorVerticesInAlternativeColor(targetVertices);
         return true;
-    }
-    
-    /**
-     * This method is used to find the colors assigned to vertices passed as parameter.
-     * @param vertices The vertices that should be searched through.
-     */
-    protected int[] findAssignedColors(Vertex[] vertices) {
-        // 1. Construct an array holding as many elements as the maximum number of colors possible for the graph.
-        int[] colors = new int[vertices.length];
-        
-        // 2. Loop through the vertices
-        int insertedColors = 0;
-        for (int i = 0; i < vertices.length; i++) {
-            if (vertices[i] != null) {
-                // 3. Insert the color of the current vertex into the colors array if it has not been inserted yet
-                if (!Auxilaries.containsInt(colors, vertices[i].color)) {
-                    colors[insertedColors] = vertices[i].color;
-                    insertedColors++;
-                }
-            }
-        }
-        
-        // 4. Remove zeros that occur when there are less colors than vertices and return the result
-        return Auxilaries.removeZeros(colors);
-    }
-    
-    /**
-     * This method sorts the colors by their frequency in the graph.
-     * @param vertices The vertices for which the colors whould be sorted, e.g. all vertices of the graph or the adjacent vertices surrounding a particular vertex or interest.
-     * @param the colors that should be sorted, e.g. all the colors of the graph or only those that are featured among a particular vertex's adjacent vertices.
-     * @return the colors in sorted order
-     */
-    protected int[] sortColorsByFrequency(Vertex[] vertices, int[] colors) {
-        
-        // 1. Construct an array holding as many zeros as there are vertices in the graph (not counting the null object at index 0 of the vertices array). Each value in the array will describe the frequency of a color in the graph. Such a value is indexed by the the number that identifies a color.
-        int[] colorRanks = new int[vertices.length-1];
-        
-        // 2. Loop through vertices and increment the rank of the vertex's color when it is in the colors array passed as argument
-        for (int i = 1; i < vertices.length; i++) {
-            int currentColor = vertices[i].color;
-            // Loop through the colors array and increment the rank of the color when the current vertex has one such color
-            if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) {
-                for (int j = 0; j < colors.length; j++) {
-                    if (currentColor == colors[j]) colorRanks[vertices[i].color]++;
-                }
-            }
-        }
-        // 3. Loop through the color rank array and sort the indices by value in descending order. Note that the indices resemble the numbers by which the colors are identified.
-        colorRanks = Auxilaries.sortIndicesByValueInDescendingOrder(colorRanks);
-        
-        // 4. Remove elements with value equal to zero. They occur when there are less used colors than there are vertices in the graph.
-        colorRanks = Auxilaries.removeZeros(colorRanks);
-        return colorRanks;
     }
     
     /**
@@ -153,9 +109,70 @@ public class Graph {
                 vertices[i].color = vertices[i].colorOptions[1];
             }
         }
-        // Return that all of the vertices passed as parameter were succesfully recolored
+        // Return true to indicate that all of the vertices passed as parameter were succesfully recolored
         return true;
     }
+    
+    /**
+     * This method is used to find the colors assigned to vertices passed as parameter.
+     * @param vertices The vertices that should be searched through.
+     */
+    protected int[] findAssignedColors(Vertex[] vertices) {
+        // 1. Construct an array holding as many elements as the maximum number of colors possible for the graph.
+        int[] colors = new int[this.vertices.length];
+        for (int i = 0; i < colors.length; i++) colors[i] = Vertex.DEFAULT_BLANK_COLOR;
+        
+        // 2. Loop through the vertices
+        int insertedColors = 0;
+        for (int i = 0; i < vertices.length; i++) {
+            if (vertices[i] != null) {
+                // 3. Insert the color of the current vertex into the colors array if it has not been inserted yet
+                
+                if (!Auxilaries.containsInt(colors, vertices[i].color)) {
+                    colors[insertedColors] = vertices[i].color;
+                    insertedColors++;
+                }
+            }
+        }
+        
+        
+        int[] result = new int[insertedColors];
+        for (int i = 0; i < insertedColors; i ++) {
+            result[i] = colors[i];
+        }
+        
+        return result;
+    }
+    
+    /**
+     * This method sorts the colors by their frequency in the graph.
+     * @param vertices The vertices for which the colors whould be sorted, e.g. all vertices of the graph or the adjacent vertices surrounding a particular vertex or interest.
+     * @param the colors that should be sorted, e.g. all the colors of the graph or only those that are featured among a particular vertex's adjacent vertices.
+     * @return the colors in sorted order
+     */
+    protected int[] sortColorsByFrequency(Vertex[] vertices, int[] colors) {
+        
+        // 1. Construct an array holding as many zeros as there are vertices in the graph (not counting the null object at index 0 of the vertices array). Each value in the array will describe the frequency of a color in the graph. Such a value is indexed by the the number that identifies a color.
+        int[] colorRanks = new int[vertices.length-1];
+        
+        // 2. Loop through vertices and increment the rank of the vertex's color when it is in the colors array passed as argument
+        for (int i = 1; i < vertices.length; i++) {
+            int currentColor = vertices[i].color;
+            // Loop through the colors array and increment the rank of the color when the current vertex has one such color
+            if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) {
+                for (int j = 0; j < colors.length; j++) {
+                    if (currentColor == colors[j]) colorRanks[vertices[i].color]++;
+                }
+            }
+        }
+        // 3. Loop through the color rank array and sort the indices by value in descending order. Note that the indices resemble the numbers by which the colors are identified.
+        colorRanks = Auxilaries.sortIndicesByValueInDescendingOrder(colorRanks);
+        
+        // 4. Remove elements with value equal to zero. They occur when there are less used colors than there are vertices in the graph.
+        colorRanks = Auxilaries.removeZeros(colorRanks);
+        return colorRanks;
+    }
+    
     
     /**
      * This method is used to find the vertices that have the specified color.
@@ -211,20 +228,40 @@ public class Graph {
 		}
 	}
 
+    /** Colors the graph using LDO and RLF
+     */
+    public int RLFcoloringWithRandomness(double mutationRate) {
+        int color = 0;
+        while (blankVertices.length != 0){
+            //Compute mostConnectedVertices using findVerticesWithHighestDegree
+            Vertex[] mostConnectedVertices = findVerticesWithHighestDegree(blankVertices);
+            for (int i =0; i < mostConnectedVertices.length; i++) {
+                if (mostConnectedVertices[i].color == Vertex.DEFAULT_BLANK_COLOR) {
+                    colorRLFOrRandom(mostConnectedVertices[i], color, mutationRate);
+                    color ++;
+                }
+            }
+        }
+        
+        return color;
+    }
+    
 	/** Colors the graph using LDO and RLF
 	*/
-	public void RLFcoloring() {
+	public int RLFcoloring() {
 		int color = 0;
 		while (blankVertices.length != 0){
 			//Compute mostConnectedVertices using findVerticesWithHighestDegree
 			Vertex[] mostConnectedVertices = findVerticesWithHighestDegree(blankVertices);
-			for(int i =0; i<mostConnectedVertices.length; i++) {
+			for (int i =0; i < mostConnectedVertices.length; i++) {
 				if(mostConnectedVertices[i].color == Vertex.DEFAULT_BLANK_COLOR) {
 					colorRLF(mostConnectedVertices[i], color);
 					color ++;
 				}
 			}
 		}
+        
+        return color;
 	}
 
 	/** Auxiliary method for RLFcoloring
@@ -238,6 +275,60 @@ public class Graph {
 		}
 	}
 
+    /** Auxiliary method for RLFcoloring
+     */
+    public void colorRLFOrRandom(Vertex v, int colorSelected, double mutationRate) {
+        setColor(v, colorSelected);
+        // Loop through the vertices and color them either in a random proper color (in case of a mutation) in the selected color
+        for(int i=0; i<blankVertices.length; i++) {
+            Random random = new Random();
+            if ((double)(random.nextInt(101))/100.0 <= mutationRate) {
+                // Assign a random color to the current vertex
+                findColorOptionsForSingleVertex(blankVertices[i]);
+                
+                //System.out.println("Color options for vertex " + blankVertices[i] + ": " + Arrays.toString(blankVertices[i].colorOptions));
+                int newColor = Vertex.DEFAULT_BLANK_COLOR;
+                if (blankVertices[i].colorOptions.length == 0) {
+                    newColor = newColor(colors);
+                    setColor(blankVertices[i], newColor);
+                }
+                else {
+                    newColor = blankVertices[i].colorOptions[0];
+                    setColor(blankVertices[i], newColor);
+                }
+                //System.out.println("Color assigned: " + newColor);
+            }
+            // Assign the selected color to the current vertex
+            else if (checkIfColorIsLegalForVertex(blankVertices[i], colorSelected)) {
+                setColor(blankVertices[i],colorSelected);
+            }
+        }
+    }
+    
+    protected int newColor(int[] colors) {
+        for (int i = 0; i < colors.length; i++) {
+            int j = i;
+            boolean colorFound = false;
+            while (j < colors.length && !colorFound) {
+                if (colors[j] == i) {
+                    colorFound = true;
+                }
+                else {
+                    j ++;
+                }
+            }
+            
+            if (!colorFound) return i;
+            else {
+                int tmp = colors[j];
+                colors[j] = colors[i];
+                colors[i] = tmp;
+            }
+        }
+        return Vertex.DEFAULT_BLANK_COLOR;
+    }
+    
+    
 	protected boolean checkIfColorIsLegalForVertex(Vertex vertex, int color) {
         boolean isLegalColor = true;
         int i = 0;
@@ -253,7 +344,7 @@ public class Graph {
 		int[] colorRanks = new int[vertices.length];
 
 		for (int i = 0; i < vertices.length; i++) {
-			if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) colorRanks[vertices[i].color]++;
+			if (vertices[i] != null && vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) colorRanks[vertices[i].color]++;
 		}
 
 		// Loop through the color rank array and retrieve the indexes of the colors used by the User so far in decreasing order of number of vertices colored (in that color)
@@ -422,32 +513,34 @@ public class Graph {
         }
 				*/
 
-		Vertex maxDegree = vertices[1];
+		Vertex maxDegree = vertices[0];
 		Vertex[] mostConnectedVertices = new Vertex[10];
 		mostConnectedVertices[0] = maxDegree;
 		int length = 1;
-		for(int i=2; i<vertices.length; i++) {
-			if(maxDegree.adjacentVertices.length < vertices[i].adjacentVertices.length) {
+		for (int i = 1; i<vertices.length; i++) {
+            if (maxDegree == null)
+                maxDegree = vertices[i];
+			else if(maxDegree.adjacentVertices.length < vertices[i].adjacentVertices.length) {
 				mostConnectedVertices = new Vertex[10];
 				mostConnectedVertices[0] = vertices[i];
 				length = 1;
 				maxDegree = vertices[i];
 			}
 			else if (maxDegree.adjacentVertices.length == vertices[i].adjacentVertices.length) {
-				if(length < mostConnectedVertices.length) {
+				if (length >= mostConnectedVertices.length) {
 					Vertex[] newmCV = new Vertex[length*2];
-					for(int j = 0; j < mostConnectedVertices.length; j++) {
+					for (int j = 0; j < mostConnectedVertices.length; j++) {
 						newmCV[j] = mostConnectedVertices[j];
 					}
 					mostConnectedVertices = newmCV;
 				}
 				
-				mostConnectedVertices[length++]=vertices[i];
+				mostConnectedVertices[length++] = vertices[i];
 			}
 		}
 		
 		Vertex[] result = new Vertex[length];
-		for(int i = 0; i < mostConnectedVertices.length; i++) {
+		for (int i = 0; i < length; i++) {
 			result[i] = mostConnectedVertices[i];
 		}
 
@@ -489,10 +582,8 @@ public class Graph {
         if (debug) System.out.println("findColorOptionsForSingleVertex()");
         // Eliminate the color option for the default color
         vertex.colorOptions = colors;
-        if (Auxilaries.containsInt(colors, 0)) {
-            vertex.colorOptions = Auxilaries.removeInt(colors,0);
-        } else {
-            vertex.colorOptions = colors;
+        if (Auxilaries.containsInt(colors, Vertex.DEFAULT_BLANK_COLOR)) {
+            vertex.colorOptions = Auxilaries.removeInt(colors, Vertex.DEFAULT_BLANK_COLOR);
         }
         // Loop through the current vertex's adjacent vertices for as long as there are color options to eliminate.
         int i = 0;
@@ -616,6 +707,16 @@ public class Graph {
 		@return a String displaying the Graph's characteristics
 	*/
 	public String toString() {
-		return getClass().getName() + "[n= " + n + "][m= " + m + "][notUsed= " + notUsed + "]";
+        String result = getClass().getName() + "[n= " + n + "][m= " + m + "][notUsed= " + notUsed + "]";
+        for (int i = 1; i < vertices.length; i ++) {
+            result += vertices[i].toString() + "\n";
+        }
+        result += "\n";
+        
+        for (int i = 0; i < edges.length; i ++) {
+            result += edges[i].toString() + "\n";
+        }
+        
+		return result;
 	}
 }

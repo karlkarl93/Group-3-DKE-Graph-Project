@@ -3,7 +3,11 @@ import java.util.Arrays;
 class Auxilaries {
 	
 	// MARK: Methods
-    
+    protected static void printArrayOfInts(int[] array) {
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(array[i] + " ");
+        }
+    }
     // Returns the indices sorted by the magnitude of the corresponding values
     protected static int[] sortIndicesByValueInDescendingOrder(int[] oldArray) {
         int[] newArray = new int[oldArray.length];

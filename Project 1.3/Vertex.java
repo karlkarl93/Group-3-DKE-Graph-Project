@@ -2,7 +2,7 @@ public class Vertex {
 	protected double x, y, z = 0;
 	protected final static int DEFAULT_BLANK_COLOR = -1;
 	protected int color = DEFAULT_BLANK_COLOR;
-	protected int[] colorOptions = {0};
+	protected int[] colorOptions = {};
 	protected Vertex[] adjacentVertices = new Vertex[0];
 	protected int vertexIndex;
 	protected boolean isVariable = true; // providing a property for the status of a vertex. Vertices freeze when they have provided other vertices wit their colour or when they have been provided with the colour of another vertex or when they have been processed entirely by the current method.
@@ -40,6 +40,6 @@ public class Vertex {
 	/** For debugging purposes
 	*/
 	public String toString() {
-		return "Vertex #" + vertexIndex;
+		return "Vertex #" + vertexIndex + " colored in color " + color;
 	}
 }
