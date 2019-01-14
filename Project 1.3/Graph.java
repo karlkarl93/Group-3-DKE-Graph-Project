@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Arrays;
+import java.util.Random;
 
 public class Graph {
 	/**
@@ -22,6 +23,161 @@ public class Graph {
 	protected Vertex[] blankVertices;
 	protected int[] colors = {0};
 
+    protected static void main(String[] args) {
+        Graph myGraph = ReadGraphV2.readGraph(args);
+        
+        myGraph.generateRandomColouring(myGraph.blankVertices);
+        System.out.println("Colors used during random colouring: " + myGraph.colors.length);
+        
+        myGraph.localSearch(myGraph.vertices, myGraph.colors);
+        System.out.println("Colors used after local search: " + myGraph.colors.length);
+    }
+    
+    protected void generateRandomColouring(Vertex[] vertices) {
+        // 1. Loop through the array of vertices
+        for (int i = 0; i < vertices.length; i++) {
+            // 2.
+            findColorOptionsForSingleVertex(vertices[i]);
+            if (vertices[i].colorOptions.length == 0) vertices[i].color = colors.length;
+            else {
+                Random random = new Random();
+                vertices[i].color =  vertices[i].colorOptions[random.nextInt(vertices[i].colorOptions.length)];
+            }
+        }
+    }
+    
+    protected boolean localSearch(Vertex[] vertices, int[] colors) {
+        int[] sortedColors = sortColorsByProminence(vertices);
+        Vertex[] targetVertices = findVerticesWithSpecificColor(vertices, sortedColors[sortedColors.length-1]);
+        tryToColorVerticesInAlternativeColor(targetVertices);
+        return true;
+    }
+    
+    /**
+     * This method is used to find the colors assigned to vertices passed as parameter.
+     * @param vertices The vertices that should be searched through.
+     */
+    protected int[] findAssignedColors(Vertex[] vertices) {
+        // 1. Construct an array holding as many elements as the maximum number of colors possible for the graph.
+        int[] colors = new int[vertices.length];
+        
+        // 2. Loop through the vertices
+        int insertedColors = 0;
+        for (int i = 0; i < vertices.length; i++) {
+            if (vertices[i] != null) {
+                // 3. Insert the color of the current vertex into the colors array if it has not been inserted yet
+                if (!Auxilaries.containsInt(colors, vertices[i].color)) {
+                    colors[insertedColors] = vertices[i].color;
+                    insertedColors++;
+                }
+            }
+        }
+        
+        // 4. Remove zeros that occur when there are less colors than vertices and return the result
+        return Auxilaries.removeZeros(colors);
+    }
+    
+    /**
+     * This method sorts the colors by their frequency in the graph.
+     * @param vertices The vertices for which the colors whould be sorted, e.g. all vertices of the graph or the adjacent vertices surrounding a particular vertex or interest.
+     * @param the colors that should be sorted, e.g. all the colors of the graph or only those that are featured among a particular vertex's adjacent vertices.
+     * @return the colors in sorted order
+     */
+    protected int[] sortColorsByFrequency(Vertex[] vertices, int[] colors) {
+        
+        // 1. Construct an array holding as many zeros as there are vertices in the graph (not counting the null object at index 0 of the vertices array). Each value in the array will describe the frequency of a color in the graph. Such a value is indexed by the the number that identifies a color.
+        int[] colorRanks = new int[vertices.length-1];
+        
+        // 2. Loop through vertices and increment the rank of the vertex's color when it is in the colors array passed as argument
+        for (int i = 1; i < vertices.length; i++) {
+            int currentColor = vertices[i].color;
+            // Loop through the colors array and increment the rank of the color when the current vertex has one such color
+            if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) {
+                for (int j = 0; j < colors.length; j++) {
+                    if (currentColor == colors[j]) colorRanks[vertices[i].color]++;
+                }
+            }
+        }
+        // 3. Loop through the color rank array and sort the indices by value in descending order. Note that the indices resemble the numbers by which the colors are identified.
+        colorRanks = Auxilaries.sortIndicesByValueInDescendingOrder(colorRanks);
+        
+        // 4. Remove elements with value equal to zero. They occur when there are less used colors than there are vertices in the graph.
+        colorRanks = Auxilaries.removeZeros(colorRanks);
+        return colorRanks;
+    }
+    
+    /**
+     * This method is used to try to recolor the specified vertices in a different color.
+     * @param vertices The vertices that need to be recolored. Note that only colored vertices may be passed to this method.
+     */
+    protected boolean tryToColorVerticesInAlternativeColor(Vertex[] vertices) {
+        // 1. Loop through the vertices
+        for (int i = 0; i < vertices.length; i++) {
+            // 2. Idenfity the color options for the current vertex
+            findColorOptionsForSingleVertex(vertices[i]);
+            // 3.1 Handle the case in which the current color is the only possible color for the current vertex
+            if (vertices[i].colorOptions.length == 1) {
+                // 3.1.1 Unlock a color option for the current vertex by looping through the colors that are assigned to its adjacent vertices. Identify the adjacent vertices that share a color. Start with the group of adjacent vertices that has the rarest color among the adjacent vertices.
+                int[] sortedColors = sortColorsByFrequency(vertices[i].adjacentVertices, findAssignedColors(vertices[i].adjacentVertices));
+                int unlockedColorOption = Vertex.DEFAULT_BLANK_COLOR;
+                int j = sortedColors.length-1;
+                while (unlockedColorOption == Vertex.DEFAULT_BLANK_COLOR && j >= 0) {
+                    // 3.1.1.1 Search for the rarest color among the current vertex's adjacent vertices
+                    Vertex[] adjacentVerticesToBeRecolored = findVerticesWithSpecificColor(vertices[i].adjacentVertices, sortedColors[j]);
+                    
+                    // 3.1.1.2 Try to recolor these vertices in any color but the color to be avoided
+                    boolean shouldTryToUnlockColorOption = true;
+                    int k = 0;
+                    while (shouldTryToUnlockColorOption && k < adjacentVerticesToBeRecolored.length) {
+                        findColorOptionsForSingleVertex(adjacentVerticesToBeRecolored[k]);
+                        adjacentVerticesToBeRecolored[k].colorOptions = Auxilaries.removeInt(adjacentVerticesToBeRecolored[k].colorOptions, vertices[i].color); // The color of the vertex of main interest
+                        adjacentVerticesToBeRecolored[k].colorOptions = Auxilaries.removeInt(adjacentVerticesToBeRecolored[k].colorOptions, adjacentVerticesToBeRecolored[k].color); // The color of the adjacent vertex itself
+                        if (adjacentVerticesToBeRecolored[k].colorOptions.length == 0) shouldTryToUnlockColorOption = false;
+                        else if (adjacentVerticesToBeRecolored[k].colorOptions.length > 0) {
+                            adjacentVerticesToBeRecolored[k].color = adjacentVerticesToBeRecolored[k].colorOptions[0];
+                        }
+                        k++; // Move to the next adjacent vertex with the current color
+                    }
+                    if (shouldTryToUnlockColorOption) unlockedColorOption = sortedColors[j];
+                    j--; // Move to the next group of adjacent vertices that have the same color
+                }
+                
+                // Recolor the current vertex if a color option was unlocked for it.
+                if (unlockedColorOption != Vertex.DEFAULT_BLANK_COLOR) vertices[i].color = unlockedColorOption;
+                else return false; // Return that there was at least one of the vertices passed as parameter that could not be succesfully recolored
+            }
+            // Handle the case in which the current vertex has more color options than the one currently assigned to it.
+            else {
+                findColorOptionsForSingleVertex(vertices[i]);
+                vertices[i].colorOptions = Auxilaries.removeInt(vertices[i].colorOptions, vertices[i].color);
+                vertices[i].color = vertices[i].colorOptions[1];
+            }
+        }
+        // Return that all of the vertices passed as parameter were succesfully recolored
+        return true;
+    }
+    
+    /**
+     * This method is used to find the vertices that have the specified color.
+     * @param vertices The vertices that should be searched through.
+     * @param color The color that a vertex has to be assigned to to be identified by this search.
+     * @return An array holding the references to the vertices with the specified color.
+     */
+    protected Vertex[] findVerticesWithSpecificColor(Vertex[] vertices, int color) {
+        // 1. Construct an array that can hold references to the colored vertices
+        Vertex[] coloredVertices = new Vertex[0];
+        
+        // 2. Loop through the vertices passed as parameter and append its reference to the array of colored vertices if it has the specified color
+        for (int i = 0; i < vertices.length; i++) {
+            if (vertices[i] != null) {
+                if (vertices[i].color == color) appendVertex(coloredVertices, vertices[i]);
+            }
+        }
+        
+        // 3. Return the array holding the references to the colored vertices
+        return coloredVertices;
+    }
+                           
 	/** Constructor for Graph objects, with two parameters:
 		@param numVertices, the number of vertices in the graph
 		@param e[], the array of edges, with contains all the edge connections of the graph
