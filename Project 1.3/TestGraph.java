@@ -196,25 +196,32 @@ public class TestGraph {
 			//System.out.println("This graph is a tree: " + isTree);
 			
 			//System.out.print("Upper Bound (top down): ");
-			//long start = System.nanoTime();
-			//int upperBound = UpperBound.upperBound(graph, 2);
-			//long end = System.nanoTime();
-			//System.out.println(upperBound + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-			
-			//System.out.print("Upper Bound (top down): ");
 			//int upperBound2 = UpperBound.upperBound(graph, 2);
 			//System.out.println(upperBound2 + "");
 			
-			//Search the lower bound
-			System.out.print("Lower bound (eigenvalues): ");
+			//Compute the eigenvalues
 			long start = System.nanoTime();
-			int lowerB = lowerBound.lowerBound(graph, 2);
+			lowerBound.computeEigenvalues(graph);
 			long end = System.nanoTime();
-			System.out.println(lowerB + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)));
+			System.out.println("Computing eigenvalues time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
+			
+			//Search the lower bound
+			start = System.nanoTime();
+			int lowerB = lowerBound.lowerBound(graph, 2);
+			end = System.nanoTime();
+			System.out.println("Lower bound (eigenvalues): " + lowerB + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 
+			//Search the Upper bound
+			start = System.nanoTime();
+			int upperBound = UpperBound.upperBound(graph, 3);
+			end = System.nanoTime();
+			System.out.println("Upper Bound (eigenvalues): " + upperBound + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
+			
 			//System.out.print("Chromatic number: ");
-			//int chromaticNumber = ChromaticNumberV2.chromaticNum(graph, 2);
-			//System.out.println(chromaticNumber + "\n");
+			//long start = System.nanoTime();
+			//int chromaticNumber = ChromaticNumberV2.chromaticNum(graph, 1);
+			//long end = System.nanoTime();
+			//System.out.println(chromaticNumber + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 		}
 		else {
 			//Launch Graphical User Interface, the Game

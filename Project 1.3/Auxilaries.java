@@ -3,26 +3,7 @@ import java.util.Arrays;
 class Auxilaries {
 	
 	// MARK: Methods
-    
-    // Returns the indices sorted by the magnitude of the corresponding values
-    protected static int[] sortIndicesByValueInDescendingOrder(int[] oldArray) {
-        int[] newArray = new int[oldArray.length];
-        for (int i = 0; i < oldArray.length; i++) {
-            // Find the index of the highest value
-            int maximumValue = 0;
-            int maximumIndex = 0;
-            for (int j = 0; j < oldArray.length; j++) {
-                if (maximumValue < oldArray[j]) {
-                    maximumValue = oldArray[j];
-                    maximumIndex = j;
-                }
-            }
-            newArray[i] = maximumIndex;
-            oldArray[maximumIndex] = 0;
-        }
-        return newArray;
-    }
-    
+		
 	protected static double[][] matrixMultiply(double[][] matrixA, double[][] matrixB) {
 		
 		double[][] matrixC = new double[matrixA.length][matrixB[0].length];

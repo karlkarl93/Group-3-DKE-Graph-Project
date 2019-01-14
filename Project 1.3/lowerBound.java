@@ -33,7 +33,7 @@ public class lowerBound {
 		}
 	}
 	
-	/** One of the lowerBound methods --- Not working ---
+	/** One of the lowerBound methods
 		Computes the lower bound by constructing the adjacency matrix of the graph, then computes its eigenvalues
 		and then uses the formula of Hoffman to compute a lower bound
 		
@@ -43,38 +43,50 @@ public class lowerBound {
 	*/
 	public static int eigenvaluesLowerBound(Graph g) {
 		if (realEigenvalues == null) {
-			double[][] adj = new double[g.getN()][g.getN()];
-			Edge[] edges = g.getEdges();
-
-			//Construct the adjacency matrix
-			for (int i = 0; i < edges.length; i ++) {
-				adj[edges[i].u-1][edges[i].v-1] ++;
-				adj[edges[i].v-1][edges[i].u-1] ++;
-			}
-			Matrix x = new Matrix(adj);
-			
-			//Compute its eigenvalues
-			EigenvalueDecomposition eigenvalues = x.eig();
-			
-			realEigenvalues = eigenvalues.getRealEigenvalues();
-			System.out.println("Real part of the eigenvalues: " + Arrays.toString(realEigenvalues));
-			double maxEigenvalue = realEigenvalues[0];
-			double minEigenvalue = maxEigenvalue;
-			for (int i = 1; i < realEigenvalues.length; i ++) {
-				if (maxEigenvalue < realEigenvalues[i]) 
-					maxEigenvalue = realEigenvalues[i];
-				else if (minEigenvalue > realEigenvalues[i]) 
-					minEigenvalue = realEigenvalues[i];
-			}
-			
-			UpperBound.realEigenvalues = realEigenvalues;
-			UpperBound.minEigenvalue = minEigenvalue;
-			UpperBound.maxEigenvalue = maxEigenvalue;
+			computeEigenvalues(g);
 		}
 		
-		System.out.println("Min eigenvalue: " + minEigenvalue + " \nMax eigenvalue: " + maxEigenvalue);
+		return (int)Math.floor(1 - (maxEigenvalue/minEigenvalue));
+	}
+	
+	/** Auxiliary method for upperBoundEigenvalues()
+		Computes the eigenvalues and searches for the maxEigenvalue and the minEigenvalue
+	
+		Saves them in the corresponding variables ("eigenvalues", "minEigenvalue", "maxEigenvalue")
+			and also in the same-named variables in UpperBound.java
+	*/
+	public static void computeEigenvalues (Graph g) {
+		System.out.println("Started computing eigenvalues");
+		double[][] adj = new double[g.getN()][g.getN()];
+		Edge[] edges = g.getEdges();
+
+		//Construct the adjacency matrix
+		for (int i = 0; i < edges.length; i ++) {
+			adj[edges[i].u-1][edges[i].v-1] ++;
+			adj[edges[i].v-1][edges[i].u-1] ++;
+		}
+		Matrix x = new Matrix(adj);
 		
-		return (int)(1 - (minEigenvalue/maxEigenvalue));
+		System.out.println("Finished the adjacency matrix");
+		//Compute its eigenvalues
+		EigenvalueDecomposition eigenvalues = x.eig();
+		
+		System.out.println("Finished computing eigenvalues");
+		
+		realEigenvalues = eigenvalues.getRealEigenvalues();
+		maxEigenvalue = realEigenvalues[0];
+		minEigenvalue = maxEigenvalue;
+		for (int i = 1; i < realEigenvalues.length; i ++) {
+			if (maxEigenvalue < realEigenvalues[i]) {
+				maxEigenvalue = realEigenvalues[i];
+			} else if (minEigenvalue > realEigenvalues[i]) {
+				minEigenvalue = realEigenvalues[i];
+			}
+		}
+		
+		UpperBound.realEigenvalues = realEigenvalues;
+		UpperBound.minEigenvalue = minEigenvalue;
+		UpperBound.maxEigenvalue = maxEigenvalue;
 	}
 	
 	/** One of the lowerBound methods
