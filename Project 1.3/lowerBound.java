@@ -9,7 +9,7 @@ import Jama.EigenvalueDecomposition;
 */
 
 public class lowerBound {
-	protected static EigenvalueDecomposition eigenvalues;
+	protected static double[] realEigenvalues;
 	protected static double maxEigenvalue;
 	protected static double minEigenvalue;
 	protected static Map<Integer, int[]> connections;
@@ -22,10 +22,15 @@ public class lowerBound {
 		- searchBiggestCompleteSubGraph
 		- eigenvaluesLowerBound --- Not working ---
 	*/
-	public static int lowerBound (Graph g) {
+	public static int lowerBound (Graph g, int method) {
 		connections = TestGraph.connections;
 		
-		return searchBiggestCompleteSubGraph(g);
+		if (method == 1) {
+			return searchBiggestCompleteSubGraph(g);
+		}
+		else {
+			return eigenvaluesLowerBound(g);
+		}
 	}
 	
 	/** One of the lowerBound methods --- Not working ---
@@ -37,35 +42,37 @@ public class lowerBound {
 		@return int, the found lower bound
 	*/
 	public static int eigenvaluesLowerBound(Graph g) {
-		if (eigenvalues == null) {
+		if (realEigenvalues == null) {
 			double[][] adj = new double[g.getN()][g.getN()];
 			Edge[] edges = g.getEdges();
 
 			//Construct the adjacency matrix
 			for (int i = 0; i < edges.length; i ++) {
-				adj[edges[i].u][edges[i].v] ++;
-				adj[edges[i].v][edges[i].u] ++;
+				adj[edges[i].u-1][edges[i].v-1] ++;
+				adj[edges[i].v-1][edges[i].u-1] ++;
 			}
 			Matrix x = new Matrix(adj);
 			
 			//Compute its eigenvalues
-			eigenvalues = x.eig();
+			EigenvalueDecomposition eigenvalues = x.eig();
 			
-			/*
-			double maxEigenvalue = eigenvalues[0][0];
+			realEigenvalues = eigenvalues.getRealEigenvalues();
+			System.out.println("Real part of the eigenvalues: " + Arrays.toString(realEigenvalues));
+			double maxEigenvalue = realEigenvalues[0];
 			double minEigenvalue = maxEigenvalue;
-			for (int i = 1; i < eigenvalues.length; i ++) {
-				if (maxEigenvalue < eigenvalues[i]) 
-					maxEigenvalue = eigenvalues[i];
-				else if (minEigenvalue > eigenvalues[i]) 
-					minEigenvalue = eigenvalues[i];
+			for (int i = 1; i < realEigenvalues.length; i ++) {
+				if (maxEigenvalue < realEigenvalues[i]) 
+					maxEigenvalue = realEigenvalues[i];
+				else if (minEigenvalue > realEigenvalues[i]) 
+					minEigenvalue = realEigenvalues[i];
 			}
-			*/
 			
-			UpperBound.eigenvalues = eigenvalues;
+			UpperBound.realEigenvalues = realEigenvalues;
 			UpperBound.minEigenvalue = minEigenvalue;
 			UpperBound.maxEigenvalue = maxEigenvalue;
 		}
+		
+		System.out.println("Min eigenvalue: " + minEigenvalue + " \nMax eigenvalue: " + maxEigenvalue);
 		
 		return (int)(1 - (minEigenvalue/maxEigenvalue));
 	}

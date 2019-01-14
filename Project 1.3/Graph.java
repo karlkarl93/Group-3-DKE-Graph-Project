@@ -63,7 +63,7 @@ public class Graph {
 			//Compute mostConnectedVertices using findVerticesWithHighestDegree
 			Vertex[] mostConnectedVertices = findVerticesWithHighestDegree(blankVertices);
 			for(int i =0; i<mostConnectedVertices.length; i++) {
-				if(mostConnectedVertices[i].color==Vertex.DEFAULT_BLANK_COLOR) {
+				if(mostConnectedVertices[i].color == Vertex.DEFAULT_BLANK_COLOR) {
 					colorRLF(mostConnectedVertices[i], color);
 					color ++;
 				}
@@ -94,7 +94,7 @@ public class Graph {
 
 	protected int[] sortColorsByProminence(Vertex[] vertices) {
 		// Loop through vertices and increment the rank of a color when a vertex has this color
-		int[] colorRanks = new int[TestGraph.colors.length];
+		int[] colorRanks = new int[vertices.length];
 
 		for (int i = 0; i < vertices.length; i++) {
 			if (vertices[i].color != Vertex.DEFAULT_BLANK_COLOR) colorRanks[vertices[i].color]++;
@@ -137,24 +137,25 @@ public class Graph {
 			int[] newResult = new int[1];
 			boolean colorFound = true;
 			int i = 0;
-			while (i < TestGraph.colors.length && colorFound) {
+			while (i < vertices.length && colorFound) {
 				int j = 0;
 				colorFound = false;
 				while (j < colors.length && !colorFound) {
 					if (colors[j] == i) {
-							colorFound = true;
+						colorFound = true;
 					}
 					else {
-							j ++;
+						j ++;
 					}
 				}
 
 				if (colorFound) i++;
 			}
 
-			if (i < TestGraph.colors.length) newResult[0] = i;
+			if (i < vertices.length) newResult[0] = i;
 			result = newResult;
 		}
+		
 		return result;
 	}
 

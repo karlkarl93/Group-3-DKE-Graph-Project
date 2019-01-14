@@ -9,7 +9,7 @@ import Jama.EigenvalueDecomposition;
 */
 
 public class UpperBound {
-	protected static EigenvalueDecomposition eigenvalues;
+	protected static double[] realEigenvalues;
 	protected static double maxEigenvalue;
 	protected static double minEigenvalue;
 	protected static Map<Integer, int[]> connections;
@@ -38,14 +38,14 @@ public class UpperBound {
 		Computes the eigenvalues of the adjacency matrix of the Graph (if it has not already been computed, and then)
 	*/
 	public static int upperBoundEigenvalues (Graph g) {
-		if (eigenvalues == null) {
+		if (realEigenvalues == null) {
 			double[][] adj = new double[g.getN()][g.getN()];
 			Edge[] edges = g.getEdges();
 
 			//Construct the adjacency matrix
 			for (int i = 0; i < edges.length; i ++) {
-				adj[edges[i].u][edges[i].v] ++;
-				adj[edges[i].v][edges[i].u] ++;
+				adj[edges[i].u-1][edges[i].v-1] ++;
+				adj[edges[i].v-1][edges[i].u-1] ++;
 			}
 
 			Matrix x = new Matrix(adj);
@@ -53,18 +53,17 @@ public class UpperBound {
 			//Compute its eigenvalues
 			EigenvalueDecomposition eigenvalues = x.eig();
 
-			/*
-			double maxEigenvalue = eigenvalues[0][0];
+			realEigenvalues = eigenvalues.getRealEigenvalues();
+			double maxEigenvalue = realEigenvalues[0];
 			double minEigenvalue = maxEigenvalue;
-			for (int i = 1; i < eigenvalues.length; i ++) {
-				if (maxEigenvalue < eigenvalues[i]) 
-					maxEigenvalue = eigenvalues[i];
-				else if (minEigenvalue > eigenvalues[i]) 
-					minEigenvalue = eigenvalues[i];
+			for (int i = 1; i < realEigenvalues.length; i ++) {
+				if (maxEigenvalue < realEigenvalues[i]) 
+					maxEigenvalue = realEigenvalues[i];
+				else if (minEigenvalue > realEigenvalues[i]) 
+					minEigenvalue = realEigenvalues[i];
 			}
-			*/
 
-			lowerBound.eigenvalues = eigenvalues;
+			lowerBound.realEigenvalues = realEigenvalues;
 			lowerBound.maxEigenvalue = maxEigenvalue;
 			lowerBound.minEigenvalue = minEigenvalue;
 		}
