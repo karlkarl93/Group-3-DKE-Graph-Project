@@ -38,7 +38,35 @@ public class UpperBound {
 		
 		@return int, an upper bound for the chromatic number of the graph
 	*/
-	public static int upperBoundRLF (Graph g, int timesRun) {
+	public static int upperBoundRLF (Graph g, int timesRun, int upperBound) {
+        int tmp = upperBound;
+        // Mutationrate = 1
+        tmp = g.RLFcoloring();
+        if (tmp < upperBound) {
+            upperBound = tmp;
+            System.out.println("Upper bound: " + upperBound);
+        }
+        
+        // Mutationrate = 0.5
+        while (timesRun > 0) {
+            tmp = g.RLFcoloringWithRandomness(0.5);
+            if (tmp < upperBound) {
+                upperBound = tmp;
+                System.out.println("Upper bound: " + upperBound);
+            }
+        }
+        
+        // Mutationrate = 0.25
+        while (timesRun > 0) {
+            tmp = g.RLFcoloringWithRandomness(0.25);
+            if (tmp < upperBound) {
+                upperBound = tmp;
+                System.out.println("Upper bound: " + upperBound);
+            }
+        }
+        
+        return upperBound;
+        
 	}
 	
 	/** One of the UpperBound methods
