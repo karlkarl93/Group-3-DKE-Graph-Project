@@ -46,7 +46,7 @@ public class Graph {
         blankVertices = new Vertex[vertices.length-1];
         for (int i = 1; i < vertices.length; i++) {
             vertices[i].color = Vertex.DEFAULT_BLANK_COLOR;
-            blankVertices[i] = vertices[i];
+            blankVertices[i-1] = vertices[i];
         }
         colors = new int[0];
         coloredVertices = new Vertex[0];
