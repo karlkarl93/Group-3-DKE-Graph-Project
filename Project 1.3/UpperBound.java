@@ -12,7 +12,6 @@ public class UpperBound {
 	protected static double[] realEigenvalues;
 	protected static double maxEigenvalue;
 	protected static double minEigenvalue;
-	protected static Map<Integer, int[]> connections;
 	
 	/** The general method that calls the other hidden methods that compute the upper bounds
 	
@@ -21,10 +20,9 @@ public class UpperBound {
 	Methods available:
 		- upperBoundMaxDegree
 		- upperBoundTopDown
-		- upperBoundEigenvalues --- Not working ---
+		- upperBoundEigenvalues
 	*/
 	public static int upperBound(Graph g, int method) {
-		connections = TestGraph.connections;
 		if (method == 1) {
 			return upperBoundMaxDegree(g);
 		} else if (method == 2) {
@@ -32,6 +30,15 @@ public class UpperBound {
 		} else {
 			return upperBoundEigenvalues(g);
 		}
+	}
+	
+	/** Uses the Graph object's method RLFcoloring() and RLFcoloringWithRandomness() to compute an upper bound
+		@param Graph g, the Graph of which we want to compute an upper bound
+		@param int timesRun, the amount of times we want to run RLFcoloringWithRandomness() in hope of getting a better upper bound
+		
+		@return int, an upper bound for the chromatic number of the graph
+	*/
+	public static int upperBoundRLF (Graph g, int timesRun) {
 	}
 	
 	/** One of the UpperBound methods
@@ -82,7 +89,7 @@ public class UpperBound {
 	}
 	
 	/** One of the UpperBound methods
-		First, constructs a map of connections of the vertices using MapConnections.connections(), 
+		First, retrieves the vertices of the graph, 
 		and then goes through the "adjacentVertices" of each vertex and keeps track of the maximum number of adjacentVertices encountered
 		Finally, returns the final maximum+1 as upperBound
 	*/
