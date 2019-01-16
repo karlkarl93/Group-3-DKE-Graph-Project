@@ -15,7 +15,7 @@ public class UpperBound {
 	
     public static void main(String[] args) {
         Graph g = ReadGraphV2.readGraph(args);
-        upperBoundRLF(g, 1000, g.vertices.length-1);
+        upperBoundRLF(g, 100, g.vertices.length-1);
     }
     
     
