@@ -13,6 +13,12 @@ public class UpperBound {
 	protected static double maxEigenvalue;
 	protected static double minEigenvalue;
 	
+    public static void main(String[] args) {
+        Graph g = ReadGraphV2.readGraph(args);
+        upperBoundRLF(g, 1000, g.vertices.length-1);
+    }
+    
+    
 	/** The general method that calls the other hidden methods that compute the upper bounds
 	
 		@param g, the Graph of which we try to compute the upper bound(s)
@@ -40,31 +46,52 @@ public class UpperBound {
 	*/
 	public static int upperBoundRLF (Graph g, int timesRun, int upperBound) {
         int tmp = upperBound;
-        // Mutationrate = 1
+        
+        // Mutationrate = 0
         tmp = g.RLFcoloring();
         if (tmp < upperBound) {
             upperBound = tmp;
-            System.out.println("Upper bound for mutation rate = 1: " + upperBound);
+            System.out.println("Upper bound for mutation rate = 0: " + upperBound);
+        }
+        g.localSearch(g.vertices, g.colors);
+        tmp = g.findAssignedColors(g.vertices).length;
+        if (tmp < upperBound) {
+            upperBound = tmp;
+            System.out.println("Upper bound local for mutation rate = 0: " + upperBound);
         }
         
         // Mutationrate = 0.5
-        while (timesRun > 0) {
-            tmp = g.RLFcoloringWithRandomness(0.5);
+        for (int i = 0; i < timesRun; i++) {
+            g.resetColouring();
+            tmp = g.RLFcoloringWithRandomness(0.25);
             if (tmp < upperBound) {
                 upperBound = tmp;
-                System.out.println("Upper bound for mutation rate = 0.5: " + upperBound);
+                System.out.println("Upper bound global for mutation rate = 0.25: " + upperBound);
+            }
+            g.localSearch(g.vertices, g.colors);
+            tmp = g.findAssignedColors(g.vertices).length;
+            if (tmp < upperBound) {
+                upperBound = tmp;
+                System.out.println("Upper bound local for mutation rate = 0.25: " + upperBound);
             }
         }
         
         // Mutationrate = 0.25
-        while (timesRun > 0) {
-            tmp = g.RLFcoloringWithRandomness(0.25);
+        for (int i = 0; i < timesRun; i++) {
+            g.resetColouring();
+            tmp = g.RLFcoloringWithRandomness(0.5);
             if (tmp < upperBound) {
                 upperBound = tmp;
-                System.out.println("Upper bound for mutation rate = 0.25: " + upperBound);
+                System.out.println("Upper bound global for mutation rate = 0.5: " + upperBound);
+            }
+            g.localSearch(g.vertices, g.colors);
+            tmp = g.findAssignedColors(g.vertices).length;
+            if (tmp < upperBound) {
+                upperBound = tmp;
+                System.out.println("Upper bound local for mutation rate = 0.5: " + upperBound);
             }
         }
-        
+        System.out.println("Finished all runs");
         return upperBound;
         
 	}
