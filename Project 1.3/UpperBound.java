@@ -46,7 +46,7 @@ public class UpperBound {
 	*/
 	public static int upperBoundRLF (Graph g, int timesRun, int upperBound) {
         int tmp = upperBound;
-        
+        long time = System.currentTimeMillis();
         // Mutationrate = 0
         tmp = g.RLFcoloring();
         if (tmp < upperBound) {
@@ -59,7 +59,8 @@ public class UpperBound {
             upperBound = tmp;
             System.out.println("Upper bound local for mutation rate = 0: " + upperBound);
         }
-        
+        System.out.println("Time for mutationrate = 0: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
         // Mutationrate = 0.5
         for (int i = 0; i < timesRun; i++) {
             g.resetColouring();
@@ -75,7 +76,8 @@ public class UpperBound {
                 System.out.println("Upper bound local for mutation rate = 0.25: " + upperBound);
             }
         }
-        
+        System.out.println("Time for mutationrate = 0.25: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
         // Mutationrate = 0.25
         for (int i = 0; i < timesRun; i++) {
             g.resetColouring();
@@ -91,7 +93,7 @@ public class UpperBound {
                 System.out.println("Upper bound local for mutation rate = 0.5: " + upperBound);
             }
         }
-        System.out.println("Finished all runs");
+        System.out.println("Time for mutationrate = 0.5: " + (System.currentTimeMillis() - time));
         return upperBound;
         
 	}
