@@ -44,7 +44,7 @@ public class UpperBound {
         tmp = g.RLFcoloring();
         if (tmp < upperBound) {
             upperBound = tmp;
-            System.out.println("Upper bound: " + upperBound);
+            System.out.println("Upper bound for mutation rate = 1: " + upperBound);
         }
         
         // Mutationrate = 0.5
@@ -52,7 +52,7 @@ public class UpperBound {
             tmp = g.RLFcoloringWithRandomness(0.5);
             if (tmp < upperBound) {
                 upperBound = tmp;
-                System.out.println("Upper bound: " + upperBound);
+                System.out.println("Upper bound for mutation rate = 0.5: " + upperBound);
             }
         }
         
@@ -61,7 +61,7 @@ public class UpperBound {
             tmp = g.RLFcoloringWithRandomness(0.25);
             if (tmp < upperBound) {
                 upperBound = tmp;
-                System.out.println("Upper bound: " + upperBound);
+                System.out.println("Upper bound for mutation rate = 0.25: " + upperBound);
             }
         }
         
