@@ -11,11 +11,24 @@ public class ChromaticNumberV2 {
 		NOTE !!! We suppose, in isTree(), isCycle() and the chromatic number algorithms, that connections is already set to be TestGraph.connections;
 	*/
 	
-	
+    
+    protected void binarySearch(Graph g, int lowerBound = 5, int upperBound = 10) {
+        
+        while (lowerBound != upperBound) {
+            if permute(g.n, (int)(lowerBound + upperBound)/2)) {
+                upperBound = (int)(lowerBound + upperBound)/2);
+            }
+            else {
+                if (lowerBound != (int)(lowerBound + upperBound)/2)) {
+                    lowerBound = (int)(lowerBound + upperBound)/2);
+                } else lowerBound = upperBound;
+            }
+        }
+    }
 	
 	/** 
 	*/
-	protected void permute(int n, int k) {
+	protected boolean permute(int n, int k) {
 		// Construct an array whereby indices represent vertices and values represent colours. Initialise with no colour
 		int[] colouring = new int[n]; 
 		for (int i = 0; i < n; i++) {
@@ -49,6 +62,8 @@ public class ChromaticNumberV2 {
 				isFeasible = true;
 			}
 		}
+        
+        return isFeasible;
 	}
 	
 	/** Checks if the vertex at index vertexIndex in the coloring "colouring" can be colored in color "colour"
