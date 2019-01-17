@@ -11,6 +11,63 @@ public class ChromaticNumberV2 {
 		NOTE !!! We suppose, in isTree(), isCycle() and the chromatic number algorithms, that connections is already set to be TestGraph.connections;
 	*/
 	
+	
+	
+	/** 
+	*/
+	protected void permute(int n, int k) {
+		// Construct an array whereby indices represent vertices and values represent colours. Initialise with no colour
+		int[] colouring = new int[n]; 
+		for (int i = 0; i < n; i++) {
+			colouring[i] = -1;
+		}
+		
+		// Try all combinations and their permutations for vertices and colours
+		boolean isFeasible = false; 
+		int i = 0;
+		while (!isFeasible && i < n) {
+			// Loop through all possible colours for this vertex
+			int j = colouring[i] + 1; 
+			colouring[i] = -1;
+			while (colouring[i] == -1 && j < k) {
+				if (isProperColour(colouring, i, j)) {
+					colouring[i] = j; 
+				} else {
+					j++;
+				}
+			}
+			
+			// If no colour was found for this vertex move to previous vertex, move to the next vertex
+			if (colouring[i] == -1) {
+				i--; 
+			} else {
+				i++;
+			}
+			
+			// All vertices have been assigned a colour
+			if (i == n-1) {
+				isFeasible = true;
+			}
+		}
+	}
+	
+	/** Checks if the vertex at index vertexIndex in the coloring "colouring" can be colored in color "colour"
+	*/
+	public static isProperColour (int[] colouring, int vertexIndex, int colour) {
+		int[] adjacentVertices = connections.get(vertexIndex+1);
+		boolean isPossible = true;
+		int i = 0;
+		while (i < adjacentVertices.length && isPossible)
+			if (colouring[adjacentVertices[i] - 1] == colour) {
+				isPossible = false;
+			} else {
+				i ++;
+			}
+		}
+		
+		return isPossible;
+	}
+	
 	/** Checks if the graph is a very special case (if there are 0 edges or the maximum number of edges)
 			If this is not the case, then it calls the method computeChromaNumber, which actually computes the chromatic number.
 		
@@ -59,18 +116,22 @@ public class ChromaticNumberV2 {
 	}
 	
 	/** This method checks whether a graph has a special "tree"-structure and returns an according boolean value
-	
+			IMPORTANT !!! It is assumed that the "connections" variable has been already initialized
+		
 		@param Graph g, the graph which we check for a "tree" structure
 		
 		@return a boolean value, true if it has a "tree"-structure, false if otherwise
 	*/
 	public static boolean isTree (Graph g) {
 		boolean isTree = true;
+		
+		//Find the first vertex that has at least one connection
 		int i = 1;
 		while (i <= g.getN() && !g.seen[i]) {
 			i ++;
 		}
 		
+		//Build a new boolean array to record the vertices we saw in the tree
 		boolean[] seenInTree = new boolean[g.getN() + 1];
 		ArrayList<int[]> x = new ArrayList<int[]>();
 		int[] toAdd = {0, i};
@@ -83,11 +144,10 @@ public class ChromaticNumberV2 {
 			int[] connectionsOfVertex = connections.get(x.get(i)[1]);
 			int j = 0;
 			while (j < connectionsOfVertex.length && isTree) {
-				if (connectionsOfVertex[i] != x.get(i)[0]) {
-					//If this vertex was already seen, then break this loop and exit the external while loop
+				if (connectionsOfVertex[j] != x.get(i)[0]) {
+					//If this vertex was already seen, then exit the while loops
 					if (seenInTree[connectionsOfVertex[j]]) {
 						isTree = false;
-						break;
 					}
 					else {
 						//Add this connection to x
@@ -102,10 +162,26 @@ public class ChromaticNumberV2 {
 			x.remove(i);
 		}
 		
+		//Check if we have seen all the vertices in the graph
+		if (isTree)
+			isTree = Arrays.equals(g.seen, seenInTree);
+		
 		return isTree;
 	}
 	
-	/* This method checks whether a graph has a special "cycle"-structure and returns an according boolean value
+	/** Checks if the Graph is a bipartite Graph (chromatic number = 2)
+	*/
+	/*
+	public static boolean isBipartiteGraph(Graph g) {
+		g.setColor(vertices[0], 0);
+		for (int i = 1; i < g.vertices.length; i ++) {
+			
+		}
+	}
+	*/
+	
+	/** This method checks whether a graph has a special "cycle"-structure and returns an according boolean value
+			IMPORTANT !!! It is assumed that the "connections" variable has been already initialized
 		
 		@param Graph g, the graph of which we check for a "cycle" structure
 		
