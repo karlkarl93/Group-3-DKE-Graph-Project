@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 /** This class contains all the methods needed to compute the chromatic number of a given graph
 */
-public class ChromaticNumberV2 {
+public class ChromaticNumber {
 	protected static Map<Integer, int[]> connections;
 	protected static int blankColor = Vertex.DEFAULT_BLANK_COLOR;
 	
