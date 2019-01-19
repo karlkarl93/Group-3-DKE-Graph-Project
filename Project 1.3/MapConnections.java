@@ -17,21 +17,15 @@ public class MapConnections {
 		
 		Map<Integer, int[]> connections = new HashMap<Integer,int[]>();
 		numAdjacentVertices = new int[n+1];
+		for (int i = 0; i <= n; i ++) {
+			connections.put(i, new int[n-1]);
+		}
+		
 		for(int i = 0; i < e.length; i ++) {
-			if (connections.containsKey(e[i].u)) {
-				connections.put(e[i].u, Add(e[i].u, connections.get(e[i].u), e[i].v));
-			}
-			else {
-				connections.put(e[i].u, Add(e[i].u, new int[n-1], e[i].v));
-			}
+			connections.put(e[i].u, Add(e[i].u, connections.get(e[i].u), e[i].v));
 			numAdjacentVertices[e[i].u] ++;
 			
-			if (connections.containsKey(e[i].v)) {
-				connections.put(e[i].v, Add(e[i].v, connections.get(e[i].v), e[i].u));
-			}
-			else {
-				connections.put(e[i].v, Add(e[i].v, new int[n-1], e[i].u));
-			}
+			connections.put(e[i].v, Add(e[i].v, connections.get(e[i].v), e[i].u));
 			numAdjacentVertices[e[i].v] ++;
 		}
 		

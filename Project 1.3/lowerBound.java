@@ -23,9 +23,8 @@ public class lowerBound {
 		- eigenvaluesLowerBound --- Not working ---
 	*/
 	public static int lowerBound (Graph g, int method) {
-		connections = TestGraph.connections;
-		
 		if (method == 1) {
+			connections = TestGraph.connections;
 			return searchBiggestCompleteSubGraph(g);
 		}
 		else {
@@ -56,7 +55,6 @@ public class lowerBound {
 			and also in the same-named variables in UpperBound.java
 	*/
 	public static void computeEigenvalues (Graph g) {
-		System.out.println("Started computing eigenvalues");
 		double[][] adj = new double[g.getN()][g.getN()];
 		Edge[] edges = g.getEdges();
 
@@ -67,11 +65,8 @@ public class lowerBound {
 		}
 		Matrix x = new Matrix(adj);
 		
-		System.out.println("Finished the adjacency matrix");
 		//Compute its eigenvalues
 		EigenvalueDecomposition eigenvalues = x.eig();
-		
-		System.out.println("Finished computing eigenvalues");
 		
 		realEigenvalues = eigenvalues.getRealEigenvalues();
 		maxEigenvalue = realEigenvalues[0];
@@ -111,12 +106,6 @@ public class lowerBound {
 					maxSize = subgraphs[i].length;
 				}
 			}
-
-			/*
-			//Print out the results
-			System.out.println("The set of subgraphs is: " + Arrays.deepToString(subgraphs));
-			System.out.println("\nThe lower bound is " + maxSize);
-			*/
 		}
 		else {
 			maxSize = 2;
@@ -249,6 +238,7 @@ public class lowerBound {
 			completeSubGraph[pairsToCheck.length] = inter[0];
 			
 			//Delete all pairs that are composed of points from the complete subgraph just found
+			/*
 			for (int i = 0; i < completeSubGraph.length-1; i ++) {
 				for (int j = i+1; j < completeSubGraph.length; j ++) {
 					//For each pair of elements index i and j in completeSubGraph, I select the big and small one,
@@ -272,6 +262,7 @@ public class lowerBound {
 					}
 				}
 			}
+			*/
 		}
 		else if (inter.length == 0) {
 			//Then, we have our complete subgraph (except if we only have 2 points, then we only have a single connection between the two)
@@ -280,6 +271,7 @@ public class lowerBound {
 				completeSubGraph = pairsToCheck;
 				
 				//Delete all pairs that are composed of points from the complete subgraph just found
+				/*
 				for (int i = 0; i < completeSubGraph.length-1; i ++) {
 					for (int j = i+1; j < completeSubGraph.length; j ++) {
 						//For each pair of elements index i and j in completeSubGraph, I select the big and small one,
@@ -303,6 +295,7 @@ public class lowerBound {
 						}
 					}
 				}
+				*/
 			}
 			else {
 				completeSubGraph = new int[0];

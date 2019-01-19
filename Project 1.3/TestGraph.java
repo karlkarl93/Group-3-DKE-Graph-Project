@@ -33,6 +33,9 @@ public class TestGraph {
 	//Initialize the Graph variable and set the min and max number of vertices
 	private static Graph graph;
 	protected static Map<Integer, int[]> connections;
+	protected static int lowerBound;
+	protected static int upperBound;
+	
 	private static final int minVertices = 1;
 	private static final int maxVertices = 30;
 	
@@ -86,7 +89,7 @@ public class TestGraph {
 	
 	//Initialize all the labels, sliders, etc. that need to be modified during program execution
 		//GameScreen items
-	private static SimulatorV2 canvas;
+	private static Simulator canvas;
 	private static JPanel colorPalette = new JPanel();
 	private static colorPaletteButton[] colorButtons = new colorPaletteButton[colors.length];
 	private static JLabel timer = new JLabel("00:00");
@@ -109,105 +112,76 @@ public class TestGraph {
 	public static void main (String[] args) {
 		if (args.length > 0) {
 			//Command Line Interface, only textual output
-			/*
-			String[] testGraphs = {"Graph01.txt", "Graph02.txt", "Graph03.txt", "Graph04.txt", "Graph05.txt", "Graph06.txt", "Graph07.txt", "Graph08.txt", "Graph09.txt", "Graph10.txt", "Graph11.txt", "Graph12.txt", "Graph13.txt", "Graph14.txt", "Graph15.txt", "Graph16.txt", "Graph17.txt", "Graph18.txt", "Graph19.txt", "Graph20.txt"};
-			int numActivations = 0;
-			int numCorrectActivations = 0;
-			int numPointlessActivations = 0;
+			graph = ReadGraph.readGraph(args);
 			
-			for (int j = 0; j < testGraphs.length; j ++) {
-				String[] a = {testGraphs[j]};
-				graph = ReadGraphV2.readGraph(a);
-
-				connections = MapConnections.connections(graph);
-				// DEBUGGING
-				//System.out.println("Connections: ");
-				//MapConnections.showConnections(connections);
-				//System.out.println();
-				
-				//Print the graphs number of edges and vertices
-				System.out.printf("Graph #%d Specs: \n", j);
-				System.out.printf("    - %d vertices\n", graph.getN());
-				System.out.printf("    - %d edges\n\n", graph.getEdges().length);
-
-				//Check if it is worth to run the upperBound algorithm 1
-				long start1 = System.nanoTime();
-				double mean = (double)2*graph.getEdges().length/graph.getN();
-				int i = 1;
-				boolean uniformDistributionEdges = true;
-				while (i <= graph.getN() && uniformDistributionEdges) {
-					if (connections.get(i).length != 0 && ((Math.abs(connections.get(i).length - mean) > (((double)3/4)*mean)))) {
-						uniformDistributionEdges = false;
-					}
-					else i++;
-				}
-				long end1 = System.nanoTime();
-
-				if (uniformDistributionEdges) {
-					System.out.println("Would have called method 1");
-					numActivations ++;
-				}
-				else {
-					System.out.printf("Vertex #%d has an abnormal number of connections: %d, mean = %f \n", i, connections.get(i).length, mean);
-				}
-
-				System.out.println("Check took " + ((end1-start1)/Math.pow(10, 9)));
-
-				System.out.print("Upper Bound (max degree + 1): ");
-				long start = System.nanoTime();
-				int upperBound = UpperBound.upperBound(graph, 1);
-				long end = System.nanoTime();
-				System.out.println(upperBound + "");
-				System.out.println("Execution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-
-				System.out.print("Upper Bound (top down): ");
-				start = System.nanoTime();
-				int upperBound2 = UpperBound.upperBound(graph, 2);
-				end = System.nanoTime();
-				System.out.println(upperBound2 + "");
-				System.out.println("Execution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n\n");
-				System.out.println("--------------------------------------------------------------------------\n");
-				
-				if (upperBound < upperBound2) numCorrectActivations ++;
-				else if (upperBound > upperBound2 && uniformDistributionEdges) numPointlessActivations ++;
-			}
-			
-			System.out.printf("Conclusion: \nThe algorithm would have activated for %d/%d graphs\n", numActivations, testGraphs.length);
-			System.out.printf("The algorithm activated correctly %d times\n", numCorrectActivations);
-			System.out.printf("The algorithm activated unnecessarily %d times\n", numPointlessActivations);
-			*/
-			graph = ReadGraphV2.readGraph(args);
-			
-			//connections = MapConnections.connections(graph);
+			connections = MapConnections.connections(graph);
 			//System.out.println("Connections: ");
 			//MapConnections.showConnections(connections);
 			//System.out.println();
 			
 			//Print the graphs number of edges and vertices
-			System.out.println("Graph Specs: ");
-			System.out.printf("    - %d vertices\n", graph.getN());
-			System.out.printf("    - %d edges\n", graph.getEdges().length);
+			//System.out.println("Graph Specs: ");
+			//System.out.printf("    - %d vertices\n", graph.getN());
+			//System.out.printf("    - %d edges\n", graph.getEdges().length);
 			
-			//ChromaticNumberV2.connections = connections;
+			ChromaticNumber.connections = connections;
 			
-			//Print the result of the check of ChromaticNumberV2.isBipartite(Graph);
-			System.out.print("This graph is bipartite: ");
-			long start = System.nanoTime();
-			boolean isBipartite = ChromaticNumberV2.isBipartite(graph);
-			long end = System.nanoTime();
-			System.out.println(isBipartite + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)));
+			//General Approach:
 			
-			//Print the result of the check of ChromaticNumberV2.isTree(Graph)
+			//	NOTE: newChromaticNumber needs to be defined, as well as newLowerBound and newUpperBound
+			//				Define them in ChromaticNumber.java, lowerBound.java and UpperBound.java ???
+			//They should use the format given by Steven to signal that a new lower/upper bound or chromatic number is found
+			// maybe make newChromaticNumber use System.exit(0) to end the program ???
+			//Maybe we can have newLowerBound and newUpperBound to check if lowerBound == upperBound ???
+			
+			//Check if the Graph has at least one vertex (otherwise, the chromatic number is 0)
+			if (g.n == 0) {
+				newChromaticNumber(0);
+			}
+			else {
+				//Check if the Graph has at least one edge (otherwise, the chromatic number is 1)
+				if (g.m == 0) {
+					newChromaticNumber(1);
+				}
+				else {
+					// Compute isBipartite()
+					boolean isBipartite() = ChromaticNumber.isBipartite(graph);
+					
+					if (isBipartite) {
+						newChromaticNumber(2);
+					}
+					else {
+						// Compute isCycle
+						boolean isCycle = ChromaticNumber.isCycle(graph);
+						
+						if (isCycle) {
+							newChromaticNumber(3);
+						}
+						else {
+							//Use the lower/upper bound algorithms to compute lower/upper bounds, then use binarySearch with the bounds
+						}
+					}						
+				}
+			}
+			
+			//Print the result of the check of ChromaticNumber.isBipartite(Graph);
+			//System.out.print("This graph is bipartite: ");
+			//long start = System.nanoTime();
+			//boolean isBipartite = ChromaticNumber.isBipartite(graph);
+			//long end = System.nanoTime();
+			//System.out.println(isBipartite + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)));
+			
+			//Print the result of the check of ChromaticNumber.isTree(Graph)
 			//System.out.print("This graph is a tree: ");
 			//long start = System.nanoTime();
-			//boolean isTree = ChromaticNumberV2.isTree(graph);
+			//boolean isTree = ChromaticNumber.isTree(graph);
 			//long end = System.nanoTime();
 			//System.out.println(isTree + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs \n");
 			
-			//Print the result of the check of ChromaticNumberV2.isCycle(Graph)
+			//Print the result of the check of ChromaticNumber.isCycle(Graph)
 			//System.out.print("This graph is a cycle: ");
 			//start = System.nanoTime();
-			//boolean isCycle = ChromaticNumberV2.isCycle(graph);
+			//boolean isCycle = ChromaticNumber.isCycle(graph);
 			//end = System.nanoTime();
 			//System.out.println(isCycle + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs \n");
 			
@@ -246,7 +220,7 @@ public class TestGraph {
 			
 			//System.out.print("Chromatic number: ");
 			//long start = System.nanoTime();
-			//int chromaticNumber = ChromaticNumberV2.chromaticNum(graph, 1);
+			//int chromaticNumber = ChromaticNumber.chromaticNum(graph, 1);
 			//long end = System.nanoTime();
 			//System.out.println(chromaticNumber + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 		}
@@ -371,7 +345,7 @@ public class TestGraph {
 		GameScreen.add(timer);
 		
 		//Create the canvas (to show the Graph)
-		canvas = new SimulatorV2(930, 720);
+		canvas = new Simulator(930, 720);
 		
 		//Create the toolbar
 		JPanel toolbar = new JPanel();
@@ -668,7 +642,7 @@ public class TestGraph {
 			/** On click of this color button, it modifies the currently selected color
 			*/
 			public void actionPerformed (ActionEvent event) {
-				SimulatorV2.currentColor = colorIndex;
+				Simulator.currentColor = colorIndex;
 				((colorPaletteButton)event.getSource()).setMarked(false);
 			}
 		}
@@ -739,7 +713,7 @@ public class TestGraph {
 			GameScreen.remove(canvas);
 			
 			//Reset the simulator / create a new one
-			canvas = new SimulatorV2(930, 720);
+			canvas = new Simulator(930, 720);
 			
 			//And add it to the JPanel
 			GameScreen.add(canvas, BorderLayout.WEST);
@@ -774,7 +748,7 @@ public class TestGraph {
 			GameScreen.remove(canvas);
 			
 			//Reset the simulator / create a new one
-			canvas = new SimulatorV2(930, 720);
+			canvas = new Simulator(930, 720);
 			
 			//And add it to the JPanel
 			GameScreen.add(canvas, BorderLayout.WEST);
@@ -795,10 +769,10 @@ public class TestGraph {
 				//The User selected a file, then we call readGraph with this file
 				File graphFile = chooser.getSelectedFile();
 				String[] inputFile = {graphFile.getPath()};
-				graph = ReadGraphV2.readGraph(inputFile);
+				graph = ReadGraph.readGraph(inputFile);
 				
 				if (graph.n < 50)
-					graph.chromaticNumber = ChromaticNumberV2.chromaticNum(graph, 1);
+					graph.chromaticNumber = ChromaticNumber.chromaticNum(graph, 1);
 				
 				game.currentGraph = graph;
 				canvas.showGraph(graph, game instanceof GameMode3);
@@ -818,7 +792,7 @@ public class TestGraph {
 			int numEdges = edgeSlider.getValue();
 			
 			graph = game.generateGraph(numVertices, numEdges);
-			graph.chromaticNumber = ChromaticNumberV2.chromaticNum(graph, 1);
+			graph.chromaticNumber = ChromaticNumber.chromaticNum(graph, 1);
 			
 			game.currentGraph = graph;
 			canvas.showGraph(graph, game instanceof GameMode3);
@@ -846,11 +820,11 @@ public class TestGraph {
 					Vertex[] result2 = graph.findVerticesWithFewestColorOptions(result);
 					
 					if (result2.length > 0) {
-						//Show it using showVertexToColor of the SimulatorV2
+						//Show it using showVertexToColor of the Simulator
 						canvas.showVertexToColor(result2[0].vertexIndex);
 					}
 					else if (result.length > 0) {
-						//Show it using showVertexToColor of the SimulatorV2
+						//Show it using showVertexToColor of the Simulator
 						canvas.showVertexToColor(result[0].vertexIndex);
 					}
 					else {

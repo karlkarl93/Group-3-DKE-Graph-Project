@@ -14,8 +14,8 @@ public class UpperBound {
 	protected static double minEigenvalue;
 	
     public static void main(String[] args) {
-        Graph g = ReadGraphV2.readGraph(args);
-        upperBoundRLF(g, 100, g.vertices.length);
+        Graph g = ReadGraph.readGraph(args);
+        upperBoundRLF(g, 100, g.vertices.length-1);
     }
     
     
@@ -51,7 +51,7 @@ public class UpperBound {
         tmp = g.RLFcoloring();
         if (tmp < upperBound) {
             upperBound = tmp;
-            System.out.println("Upper bound global for mutation rate = 0: " + upperBound);
+            System.out.println("Upper bound for mutation rate = 0: " + upperBound);
         }
         g.localSearch(g.vertices, g.colors);
         tmp = g.findAssignedColors(g.vertices).length;
