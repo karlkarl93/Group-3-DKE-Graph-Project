@@ -6,9 +6,10 @@ import java.util.Arrays;
 */
 public class ChromaticNumberV2 {
 	protected static Map<Integer, int[]> connections;
+	protected static int blankColor = Vertex.DEFAULT_BLANK_COLOR;
 	
 	/*
-		NOTE !!! We suppose, in isTree(), isCycle() and the chromatic number algorithms, that connections is already set to be TestGraph.connections;
+		NOTE !!! We suppose, in isTree(), isCycle(), isBipartite() and the chromatic number algorithms, that connections is already set to be TestGraph.connections;
 	*/
 	
 	/** Given a lowerBound and an upperBound, it tries to reduce the difference between the two by using binary search
@@ -17,12 +18,12 @@ public class ChromaticNumberV2 {
 	*/
 	protected void binarySearch(Graph g, int lowerBound, int upperBound) {
 		while (lowerBound != upperBound) {
-			if permute(g.n, (int)(lowerBound + upperBound)/2)) {
-				upperBound = (int)(lowerBound + upperBound)/2);
+			if (permute(g.n, (int)(lowerBound + upperBound)/2)) {
+				upperBound = (int)((lowerBound + upperBound)/2);
 			}
 			else {
-				if (lowerBound != (int)(lowerBound + upperBound)/2)) {
-					lowerBound = (int)(lowerBound + upperBound)/2);
+				if (lowerBound != (int)((lowerBound + upperBound)/2)) {
+					lowerBound = (int)((lowerBound + upperBound)/2);
 				} else lowerBound = upperBound;
 			}
 		}
@@ -192,72 +193,61 @@ public class ChromaticNumberV2 {
 	/** Checks if the Graph is a bipartite Graph (chromatic number = 2)
 	*/
 	public static boolean isBipartite(Graph g) {
-		Vertex[] vertices = g.vertices;
-		int blankColor = Vertex.DEFAULT_BLANK_COLOR;
-		
-		//Start by coloring the first vertex and adding all connected vertices to an arrayList
-		g.setColor(vertices[1], 0);
-		ArrayList<Vertex> verticesToColor = new ArrayList<Vertex>();
-		for (int i = 0; i < vertices[1].adjacentVertices.length; i ++) {
-			verticesToColor.add(vertices[1].adjacentVertices[i]);
+		//Color the unconnected vertices
+		for (int i = 1; i < g.vertices.length; i ++) {
+			if (g.vertices[i].adjacentVertices.length == 0) {
+				g.setColor(g.vertices[i], 0);
+			}
 		}
 		
-		//System.out.println("Blank Vertices: " + Arrays.deepToString(g.blankVertices));
-		
-		//Repeat until either we find out that the graph can not be colored in 2 colors or we finished coloring the graph with 2 colors
+		//Recursively color the adjacentVertices that are not yet colored
+		int i = 0;
 		boolean isBipartite = true;
-		while (isBipartite && g.blankVertices.length != 0) {
-			System.out.println("\n# Colored vertices: " + g.coloredVertices.length + "			  Size of verticesToColor: " + verticesToColor.size());
-			//System.util.sleep(500);
-			
-			//If we have gone through all the verticesToColor, then the graph is composed of multiple unconnected subgraphs
-			if (verticesToColor.size() == 0) {
-				//And we need to add a new uncolored vertex to verticesToColor
-				verticesToColor.add(g.blankVertices[0]);
-			}
-			
-			if (verticesToColor.get(0).color == blankColor) {
-				//Check if it is possible to color the first vertex in the arrayList in one of the two colors, and if yes, which one
-				int[] availableColors = {0, 1};
-				int j = 0;
-				while (j < verticesToColor.get(0).adjacentVertices.length && (availableColors[0] != -1 || availableColors[1] != -1)) {
-					if (verticesToColor.get(0).adjacentVertices[j].color != blankColor) {
-						availableColors[verticesToColor.get(0).adjacentVertices[j].color] = blankColor;
-					}
-					
-					j ++;
-				}
-				
-				//Color the vertex in the first color of availableColors that is not Vertex.DEFAULT_BLANK_COLOR
-				j = 0;
-				while (j < availableColors.length) {
-					if (availableColors[j] != blankColor) {
-						g.setColor(verticesToColor.get(0), availableColors[j]);
-					}
-					j++;
-				}
-				
-				//If it is not colored yet, then this vertex can not be colored in one of the two colors and the graph is not bipartite
-				if (verticesToColor.get(0).color == blankColor)
-					isBipartite = false;
-				else {		
-					//Otherwise, we add the vertices adjacent to the vertex just colored to the arrayList
-					for (j = 0; j < verticesToColor.get(0).adjacentVertices.length; j ++) {
-						if (verticesToColor.get(0).adjacentVertices[j].color == blankColor) {
-							verticesToColor.add(verticesToColor.get(0).adjacentVertices[j]);
-						}
-					}
-					
-					//And remove the vertex itself
-					verticesToColor.remove(0);
-				}
-			}
-			else {
-				verticesToColor.remove(0);
-			}
+		while (i < g.blankVertices.length && isBipartite) {
+			isBipartite = colorVertexAndAdjacent(g, g.blankVertices[i]);
 		}
+		
+		g.resetColouring();
 		
 		return isBipartite;
+	}
+	
+	/** Searches if the given vertex can be colored in the given color, and if yes, 
+			then colors it using the graph's setColor method, and then calls itself on the adjacentVertices that are not yet colored
+	*/
+	public static boolean colorVertexAndAdjacent (Graph g, Vertex v) {
+		boolean is2colourable = false;
+		
+		int i = 0;
+		int[] possibleColours = {0, 1};
+		while (i < v.adjacentVertices.length && (possibleColours[0] != blankColor || possibleColours[1] != blankColor)) {
+			if (v.adjacentVertices[i].color != blankColor) {
+				possibleColours[v.adjacentVertices[i].color] = blankColor;
+			}
+			i ++;
+		}
+		
+		int color = blankColor;
+		i = 0;
+		while (i < possibleColours.length && v.color == blankColor) {
+			if (possibleColours[i] != blankColor) {
+				g.setColor(v, possibleColours[i]);
+				is2colourable = true;
+			}
+			else {
+				i ++;
+			}
+		}
+		
+		if (is2colourable) {
+			for (i = 0; i < v.adjacentVertices.length; i ++) {
+				if (v.adjacentVertices[i].color == blankColor) {
+					is2colourable = colorVertexAndAdjacent(g, v.adjacentVertices[i]);
+				}
+			}
+		}
+		
+		return is2colourable;
 	}
 	
 	/** This method checks whether a graph has a special "cycle"-structure and returns an according boolean value
