@@ -135,30 +135,36 @@ public class TestGraph {
 			//Maybe we can have newLowerBound and newUpperBound to check if lowerBound == upperBound ???
 			
 			//Check if the Graph has at least one vertex (otherwise, the chromatic number is 0)
-			if (g.n == 0) {
+			if (graph.n == 0) {
 				newChromaticNumber(0);
 			}
 			else {
 				//Check if the Graph has at least one edge (otherwise, the chromatic number is 1)
-				if (g.m == 0) {
+				if (graph.m == 0) {
 					newChromaticNumber(1);
 				}
 				else {
-					// Compute isBipartite()
-					boolean isBipartite() = ChromaticNumber.isBipartite(graph);
-					
-					if (isBipartite) {
-						newChromaticNumber(2);
+					//Check it the Graph is a complete graph (at least for the vertices that have at least one connection)
+					if (graph.m == ((graph.getNumberUsedVertices() * (graph.getNumberUsedVertices() - 1))/2)) {
+						newChromaticNumber(graph.getNumberUsedVertices());
 					}
 					else {
-						// Compute isCycle
-						boolean isCycle = ChromaticNumber.isCycle(graph);
+						// Compute isBipartite()
+						boolean isBipartite() = ChromaticNumber.isBipartite(graph);
 						
-						if (isCycle) {
-							newChromaticNumber(3);
+						if (isBipartite) {
+							newChromaticNumber(2);
 						}
 						else {
-							//Use the lower/upper bound algorithms to compute lower/upper bounds, then use binarySearch with the bounds
+							// Compute isCycle
+							boolean isCycle = ChromaticNumber.isCycle(graph);
+							
+							if (isCycle) {
+								newChromaticNumber(3);
+							}
+							else {
+								//Use the lower/upper bound algorithms to compute lower/upper bounds, then use binarySearch with the bounds
+							}
 						}
 					}						
 				}

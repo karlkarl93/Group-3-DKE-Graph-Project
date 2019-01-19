@@ -159,7 +159,7 @@ public class UpperBound {
 			}
 		}
 		
-		return max + 1;
+		return max;
 	}
 		
 	/** One of the upperBound methods

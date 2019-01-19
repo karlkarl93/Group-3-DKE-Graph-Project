@@ -630,6 +630,11 @@ public class Graph {
 		return newVertices;
 	}
 
+	/** Returns the effective number of Vertices (that is, the number of vertices that have at least one connection or edge)
+	*/
+	public int getNumberUsedVertices () {
+		return n-notUsed;
+	}
 
 
 	// -------------------------------------------------------------
