@@ -36,6 +36,8 @@ public class ChromaticNumber {
 				} else lowerBound = LowerBound.newLowerBound(upperBound);
 			}
 		}
+		
+		newChromaticNumber(lowerBound);
 	}
 
 	
