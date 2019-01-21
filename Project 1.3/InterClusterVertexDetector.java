@@ -222,21 +222,3 @@ public class InterClusterVertexDetector {
         return upperBound;
     }
 }
-/*
- //Construct the adjacency matrix
- int[][] adj = new int[g.getN()][g.getN()];
- Edge[] edges = g.getEdges();
- 
- for (int i = 0; i < edges.length; i ++) {
- adj[edges[i].u-1][edges[i].v-1] ++;
- adj[edges[i].v-1][edges[i].u-1] ++;
- }
- 
- for (int i = 0; i < adj.length; i++) {
- for (int j = 0; j < adj.length; j++) {
- System.out.print(adj[i][j]);
- if (j < adj.length - 1) System.out.print(", ");
- }
- System.out.println();
- }
- */

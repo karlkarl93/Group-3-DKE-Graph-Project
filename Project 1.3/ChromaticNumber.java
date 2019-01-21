@@ -12,19 +12,28 @@ public class ChromaticNumber {
 		NOTE !!! We suppose, in isTree(), isCycle(), isBipartite() and the chromatic number algorithms, that connections is already set to be TestGraph.connections;
 	*/
 	
+	/** Prints the newly found chromatic number to the console by using the format given by Steven, then terminates the program.
+		
+		@param int chromaNumber, the found chromatic number
+	*/
+	public static void newChromaticNumber(int chromaNumber) {
+		System.out.println("CHROMATIC NUMBER = " + chromaNumber);
+		System.exit(0);
+	}
+	
 	/** Given a lowerBound and an upperBound, it tries to reduce the difference between the two by using binary search
 		Once a k is generated, we check using auxiliary method permute() if a k-colouring is possible.
 			If it is, then we have a new upper bound, otherwise we have a new lower bound
 	*/
-	protected void binarySearch(Graph g, int lowerBound, int upperBound) {
+	protected static void binarySearch(Graph g, int lowerBound, int upperBound) {
 		while (lowerBound != upperBound) {
 			if (permute(g.n, (int)(lowerBound + upperBound)/2)) {
-				upperBound = (int)((lowerBound + upperBound)/2);
+				upperBound = UpperBound.newUpperBound((int)((lowerBound + upperBound)/2));
 			}
 			else {
 				if (lowerBound != (int)((lowerBound + upperBound)/2)) {
-					lowerBound = (int)((lowerBound + upperBound)/2);
-				} else lowerBound = upperBound;
+					lowerBound = LowerBound.newLowerBound((int)((lowerBound + upperBound)/2));
+				} else lowerBound = LowerBound.newLowerBound(upperBound);
 			}
 		}
 	}
@@ -43,10 +52,12 @@ public class ChromaticNumber {
 		boolean isFeasible = false; 
 		int i = 0;
 		while (!isFeasible && i < n) {
+			System.out.println("Entered first while loop with i = " + i);
 			// Loop through all possible colours for this vertex
-			int j = colouring[i] + 1; 
+			int j = colouring[i] + 1;
 			colouring[i] = -1;
 			while (colouring[i] == -1 && j < k) {
+				System.out.println("Starting to call isProperColour");
 				if (isProperColour(colouring, i, j)) {
 					colouring[i] = j; 
 				} else {

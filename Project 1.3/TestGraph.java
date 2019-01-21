@@ -129,46 +129,92 @@ public class TestGraph {
 			//General Approach:
 			
 			//	NOTE: newChromaticNumber needs to be defined, as well as newLowerBound and newUpperBound
-			//				Define them in ChromaticNumber.java, lowerBound.java and UpperBound.java ???
+			//				Define them in ChromaticNumber.java, LowerBound.java and UpperBound.java ???
 			//They should use the format given by Steven to signal that a new lower/upper bound or chromatic number is found
 			// maybe make newChromaticNumber use System.exit(0) to end the program ???
 			//Maybe we can have newLowerBound and newUpperBound to check if lowerBound == upperBound ???
 			
+			int lowerBound = -1;
+			int upperBound = graph.n;
+			
 			//Check if the Graph has at least one vertex (otherwise, the chromatic number is 0)
 			if (graph.n == 0) {
-				newChromaticNumber(0);
+				ChromaticNumber.newChromaticNumber(0);
+			}
+			
+			//Check if the Graph has at least one edge (otherwise, the chromatic number is 1)
+			if (graph.m == 0) {
+				ChromaticNumber.newChromaticNumber(1);
 			}
 			else {
-				//Check if the Graph has at least one edge (otherwise, the chromatic number is 1)
-				if (graph.m == 0) {
-					newChromaticNumber(1);
-				}
-				else {
-					//Check it the Graph is a complete graph (at least for the vertices that have at least one connection)
-					if (graph.m == ((graph.getNumberUsedVertices() * (graph.getNumberUsedVertices() - 1))/2)) {
-						newChromaticNumber(graph.getNumberUsedVertices());
-					}
-					else {
-						// Compute isBipartite()
-						boolean isBipartite() = ChromaticNumber.isBipartite(graph);
-						
-						if (isBipartite) {
-							newChromaticNumber(2);
-						}
-						else {
-							// Compute isCycle
-							boolean isCycle = ChromaticNumber.isCycle(graph);
-							
-							if (isCycle) {
-								newChromaticNumber(3);
-							}
-							else {
-								//Use the lower/upper bound algorithms to compute lower/upper bounds, then use binarySearch with the bounds
-							}
-						}
-					}						
-				}
+				lowerBound = LowerBound.newLowerBound(2);
 			}
+			
+			//Check it the Graph is a complete graph (at least for the vertices that have at least one connection)
+			if (graph.m == ((graph.getNumberUsedVertices() * (graph.getNumberUsedVertices() - 1))/2)) {
+				ChromaticNumber.newChromaticNumber(graph.getNumberUsedVertices());
+			}
+			else {
+				upperBound = UpperBound.newUpperBound(graph.getNumberUsedVertices() - 1);
+			}
+			
+			// Compute isBipartite()
+			boolean isBipartite = ChromaticNumber.isBipartite(graph);
+			if (isBipartite) {
+				ChromaticNumber.newChromaticNumber(2);
+			}
+			else {
+				lowerBound = LowerBound.newLowerBound(3);
+			}
+			
+			// Compute isCycle
+			boolean isCycle = ChromaticNumber.isCycle(graph);
+			if (isCycle) {
+				ChromaticNumber.newChromaticNumber(3);
+			}
+			
+			//Here, we can put the lower/upper bound algorithms and keep track of the current best
+			
+			// One idea:
+			//NOTE: Do we need live reporting ???
+			
+			//Maximum clique lower bound
+			int tmpLowerBound = LowerBound.lowerBound(graph, 1);
+			if (tmpLowerBound > lowerBound) {
+				lowerBound = LowerBound.newLowerBound(tmpLowerBound);
+			}
+			
+			//Top down upper bound
+			int tmpUpperBound = UpperBound.upperBound(graph, 1);
+			if (tmpUpperBound < upperBound) {
+				upperBound = UpperBound.newUpperBound(tmpUpperBound);
+			}
+			
+			//MaxDegree upper bound
+			tmpUpperBound = UpperBound.upperBound(graph, 2);
+			if (tmpUpperBound < upperBound) {
+				upperBound = UpperBound.newUpperBound(tmpUpperBound);
+			}
+			
+			/*
+			//RLFcoloring upper bound
+			tmpUpperBound = UpperBound.upperBound();
+			if (tmpUpperBound < upperBound) {
+				upperBound = UpperBound.newUpperBound(tmpUpperBound);					//TO COMPLETE
+			}
+			
+			//Simulated annealing upper bound
+			tmpUpperBound = UpperBound.upperBound();									//TO COMPLETE
+			if (tmpUpperBound < upperBound) {
+				upperBound = UpperBound.newUpperBound(tmpUpperBound);
+			}
+			*/
+			
+			//Eigenvalues lower/upper bound ???
+			
+			//Binary search for chromatic number
+			ChromaticNumber.binarySearch(graph, lowerBound, upperBound);
+			
 			
 			//Print the result of the check of ChromaticNumber.isBipartite(Graph);
 			//System.out.print("This graph is bipartite: ");
@@ -191,30 +237,32 @@ public class TestGraph {
 			//end = System.nanoTime();
 			//System.out.println(isCycle + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs \n");
 			
-			//System.out.print("Upper Bound (max degree + 1): ");
-			//long start = System.nanoTime();
-			//int upperBound = UpperBound.upperBound(graph, 1);
-			//long end = System.nanoTime();
-			//System.out.println(upperBound + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
+			/*
+			System.out.print("Upper Bound (max degree + 1): ");
+			long start = System.nanoTime();
+			int upperBound = UpperBound.upperBound(graph, 2);
+			long end = System.nanoTime();
+			System.out.println(upperBound + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
+			*/
 			
 			/*
 			System.out.print("Lower bound (maximum clique): ");
-			long start = System.nanoTime();
-			int lowerB = lowerBound.lowerBound(graph, 1);
-			long end = System.nanoTime();
+			start = System.nanoTime();
+			int lowerB = LowerBound.lowerBound(graph, 1);
+			end = System.nanoTime();
 			System.out.println(lowerB + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 			*/
 			
 			//Compute the eigenvalues
 			//long start = System.nanoTime();
-			//lowerBound.computeEigenvalues(graph);
+			//LowerBound.computeEigenvalues(graph);
 			//long end = System.nanoTime();
 			//System.out.println("Computing eigenvalues time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 			
 			//	Search the lower bound
 			//System.out.print("Lower bound (eigenvalues): ");
 			//long start = System.nanoTime();
-			//int lowerBound2 = lowerBound.lowerBound(graph, 2);
+			//int lowerBound2 = LowerBound.lowerBound(graph, 2);
 			//long end = System.nanoTime();
 			//System.out.println(lowerBound2 + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 

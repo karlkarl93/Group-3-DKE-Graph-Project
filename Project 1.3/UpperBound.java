@@ -12,12 +12,18 @@ public class UpperBound {
 	protected static double[] realEigenvalues;
 	protected static double maxEigenvalue;
 	protected static double minEigenvalue;
-	
-    public static void main(String[] args) {
-        Graph g = ReadGraph.readGraph(args);
-        upperBoundRLF(g, 100, g.vertices.length-1);
-    }
     
+	/** Prints the new found upperBound to the console in the format given by Steven
+			and return it
+	
+		@param int upperBound, the new best upper bound
+		
+		@return int upperBound, the new best upper bound
+	*/
+	public static int newUpperBound (int upperBound) {
+		System.out.println("NEW BEST UPPER BOUND = " + upperBound);
+		return upperBound;
+	}
     
 	/** The general method that calls the other hidden methods that compute the upper bounds
 	
@@ -30,9 +36,9 @@ public class UpperBound {
 	*/
 	public static int upperBound(Graph g, int method) {
 		if (method == 1) {
-			return upperBoundMaxDegree(g);
-		} else if (method == 2) {
 			return upperBoundTopDown(g);
+		} else if (method == 2) {
+			return upperBoundMaxDegree(g);
 		} else {
 			return upperBoundEigenvalues(g);
 		}
@@ -113,7 +119,7 @@ public class UpperBound {
 		Computes the eigenvalues and searches for the maxEigenvalue and the minEigenvalue
 	
 		Saves them in the corresponding variables ("eigenvalues", "minEigenvalue", "maxEigenvalue")
-			and also in the same-named variables in lowerBound.java
+			and also in the same-named variables in LowerBound.java
 	*/
 	public static void computeEigenvalues (Graph g) {
 		double[][] adj = new double[g.getN()][g.getN()];
@@ -140,9 +146,9 @@ public class UpperBound {
 				minEigenvalue = realEigenvalues[i];
 		}
 
-		lowerBound.realEigenvalues = realEigenvalues;
-		lowerBound.maxEigenvalue = maxEigenvalue;
-		lowerBound.minEigenvalue = minEigenvalue;
+		LowerBound.realEigenvalues = realEigenvalues;
+		LowerBound.maxEigenvalue = maxEigenvalue;
+		LowerBound.minEigenvalue = minEigenvalue;
 	}
 	
 	/** One of the UpperBound methods
@@ -159,7 +165,7 @@ public class UpperBound {
 			}
 		}
 		
-		return max;
+		return max+1;
 	}
 		
 	/** One of the upperBound methods
