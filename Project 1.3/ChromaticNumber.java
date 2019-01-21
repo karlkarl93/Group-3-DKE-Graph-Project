@@ -53,7 +53,7 @@ public class ChromaticNumber {
 		// Try all combinations and their permutations for vertices and colours
 		boolean isFeasible = false; 
 		int i = 0;
-		while (!isFeasible && i < n) {
+		while (!isFeasible && i >= 0 && i < n) {
 			// Loop through all possible colours for this vertex
 			int j = colouring[i] + 1;
 			colouring[i] = -1;
