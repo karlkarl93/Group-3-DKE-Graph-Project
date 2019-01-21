@@ -42,7 +42,7 @@ public class UpperBound {
         } else if (method == 3) {
             return g.RLFcoloring()
         } else if (method == 4) {
-            return upperBoundRLF(g, 100, )
+            return simulatedAnnealing(g, 100, 0.25)
         }
         else {
             return upperBoundEigenvalues(g);
@@ -55,7 +55,7 @@ public class UpperBound {
      
      @return int, an upper bound for the chromatic number of the graph
      */
-    public static int upperBoundRLF(Graph g, int timesRun, double mutationrate) {
+    public static int simulatedAnnealing(Graph g, int timesRun, double mutationrate) {
         int upperBound = g.n;
         for (int i = 0; i < timesRun; i++) {
             g.resetColouring();
@@ -102,9 +102,9 @@ public class UpperBound {
         maxEigenvalue = realEigenvalues[0];
         minEigenvalue = maxEigenvalue;
         for (int i = 1; i < realEigenvalues.length; i ++) {
-            if (maxEigenvalue < realEigenvalues[i]) 
+            if (maxEigenvalue < realEigenvalues[i])
                 maxEigenvalue = realEigenvalues[i];
-            else if (minEigenvalue > realEigenvalues[i]) 
+            else if (minEigenvalue > realEigenvalues[i])
                 minEigenvalue = realEigenvalues[i];
         }
         
@@ -114,7 +114,7 @@ public class UpperBound {
     }
     
     /** One of the UpperBound methods
-     First, retrieves the vertices of the graph, 
+     First, retrieves the vertices of the graph,
      and then goes through the "adjacentVertices" of each vertex and keeps track of the maximum number of adjacentVertices encountered
      Finally, returns the final maximum+1 as upperBound
      */
