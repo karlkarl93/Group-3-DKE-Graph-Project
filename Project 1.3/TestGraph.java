@@ -127,13 +127,6 @@ public class TestGraph {
 			ChromaticNumber.connections = connections;
 			
 			//General Approach:
-			
-			//	NOTE: newChromaticNumber needs to be defined, as well as newLowerBound and newUpperBound
-			//				Define them in ChromaticNumber.java, LowerBound.java and UpperBound.java ???
-			//They should use the format given by Steven to signal that a new lower/upper bound or chromatic number is found
-			// maybe make newChromaticNumber use System.exit(0) to end the program ???
-			//Maybe we can have newLowerBound and newUpperBound to check if lowerBound == upperBound ???
-			
 			int lowerBound = -1;
 			int upperBound = graph.n;
 			
@@ -173,11 +166,7 @@ public class TestGraph {
 				ChromaticNumber.newChromaticNumber(3);
 			}
 			
-			//Here, we can put the lower/upper bound algorithms and keep track of the current best
-			
-			// One idea:
-			//NOTE: Do we need live reporting ???
-			
+			//Now, we use the different lower and upper bound methods that were kept for the general approach
 			//Maximum clique lower bound
 			int tmpLowerBound = LowerBound.lowerBound(graph, 1);
 			if (tmpLowerBound > lowerBound) {
@@ -196,87 +185,14 @@ public class TestGraph {
 				upperBound = UpperBound.newUpperBound(tmpUpperBound);
 			}
 			
-			/*
-			//RLFcoloring upper bound
-			tmpUpperBound = UpperBound.upperBound();
-			if (tmpUpperBound < upperBound) {
-				upperBound = UpperBound.newUpperBound(tmpUpperBound);					//TO COMPLETE
-			}
-			
 			//Simulated annealing upper bound
-			tmpUpperBound = UpperBound.upperBound();									//TO COMPLETE
+			tmpUpperBound = UpperBound.upperBound(graph, 3);
 			if (tmpUpperBound < upperBound) {
 				upperBound = UpperBound.newUpperBound(tmpUpperBound);
 			}
-			*/
-			
-			//Eigenvalues lower/upper bound ???
 			
 			//Binary search for chromatic number
 			ChromaticNumber.binarySearch(graph, lowerBound, upperBound);
-			
-			
-			//Print the result of the check of ChromaticNumber.isBipartite(Graph);
-			//System.out.print("This graph is bipartite: ");
-			//long start = System.nanoTime();
-			//boolean isBipartite = ChromaticNumber.isBipartite(graph);
-			//long end = System.nanoTime();
-			//System.out.println(isBipartite + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)));
-			
-			//Print the result of the check of ChromaticNumber.isTree(Graph)
-			//System.out.print("This graph is a tree: ");
-			//long start = System.nanoTime();
-			//boolean isTree = ChromaticNumber.isTree(graph);
-			//long end = System.nanoTime();
-			//System.out.println(isTree + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs \n");
-			
-			//Print the result of the check of ChromaticNumber.isCycle(Graph)
-			//System.out.print("This graph is a cycle: ");
-			//start = System.nanoTime();
-			//boolean isCycle = ChromaticNumber.isCycle(graph);
-			//end = System.nanoTime();
-			//System.out.println(isCycle + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs \n");
-			
-			/*
-			System.out.print("Upper Bound (max degree + 1): ");
-			long start = System.nanoTime();
-			int upperBound = UpperBound.upperBound(graph, 2);
-			long end = System.nanoTime();
-			System.out.println(upperBound + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-			*/
-			
-			/*
-			System.out.print("Lower bound (maximum clique): ");
-			start = System.nanoTime();
-			int lowerB = LowerBound.lowerBound(graph, 1);
-			end = System.nanoTime();
-			System.out.println(lowerB + " \nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-			*/
-			
-			//Compute the eigenvalues
-			//long start = System.nanoTime();
-			//LowerBound.computeEigenvalues(graph);
-			//long end = System.nanoTime();
-			//System.out.println("Computing eigenvalues time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-			
-			//	Search the lower bound
-			//System.out.print("Lower bound (eigenvalues): ");
-			//long start = System.nanoTime();
-			//int lowerBound2 = LowerBound.lowerBound(graph, 2);
-			//long end = System.nanoTime();
-			//System.out.println(lowerBound2 + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-
-			//	Search the Upper bound
-			//start = System.nanoTime();
-			//int upperBound2 = UpperBound.upperBound(graph, 3);
-			//end = System.nanoTime();
-			//System.out.println("Upper Bound (eigenvalues): " + upperBound2 + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
-			
-			//System.out.print("Chromatic number: ");
-			//long start = System.nanoTime();
-			//int chromaticNumber = ChromaticNumber.chromaticNum(graph, 1);
-			//long end = System.nanoTime();
-			//System.out.println(chromaticNumber + "\nExecution Time: " + ((end-start)/Math.pow(10, 9)) + " secs\n");
 		}
 		else {
 			//Launch Graphical User Interface, the Game

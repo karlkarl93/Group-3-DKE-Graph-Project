@@ -40,11 +40,10 @@ public class UpperBound {
         } else if (method == 2) {
             return upperBoundMaxDegree(g);
         } else if (method == 3) {
-            return g.RLFcoloring()
+            return simulatedAnnealing(g, 1000, 0.25);
         } else if (method == 4) {
-            return simulatedAnnealing(g, 100, 0.25)
-        }
-        else {
+            return g.RLFcoloring();
+        } else {
             return upperBoundEigenvalues(g);
         }
     }

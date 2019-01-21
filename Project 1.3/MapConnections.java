@@ -17,7 +17,7 @@ public class MapConnections {
 		
 		Map<Integer, int[]> connections = new HashMap<Integer,int[]>();
 		numAdjacentVertices = new int[n+1];
-		for (int i = 0; i <= n; i ++) {
+		for (int i = 1; i <= n; i ++) {
 			connections.put(i, new int[n-1]);
 		}
 		

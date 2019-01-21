@@ -52,12 +52,10 @@ public class ChromaticNumber {
 		boolean isFeasible = false; 
 		int i = 0;
 		while (!isFeasible && i < n) {
-			System.out.println("Entered first while loop with i = " + i);
 			// Loop through all possible colours for this vertex
 			int j = colouring[i] + 1;
 			colouring[i] = -1;
 			while (colouring[i] == -1 && j < k) {
-				System.out.println("Starting to call isProperColour");
 				if (isProperColour(colouring, i, j)) {
 					colouring[i] = j; 
 				} else {

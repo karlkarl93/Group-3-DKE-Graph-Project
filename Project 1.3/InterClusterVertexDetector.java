@@ -9,44 +9,25 @@ public class InterClusterVertexDetector {
     
     public static void main(String[] args) {
         Graph g = ReadGraphV2.readGraph(args);
-        System.out.println("Cluster First Colouring");
-        clusterVerticesFirstColouring(g);
+        /*int[][] adj = new int[g.getN()][g.getN()];
+        Edge[] edges = g.getEdges();
         
-        System.out.println("Intercluster-Vertex First Colouring");
-        interClusterVerticesFirstColoring(g);
-    }
-    
-    protected static void clusterVerticesFirstColouring(Graph g) {
-        g.resetColouring();
-        Vertex[] interClusterVertices = detectInterClusterVertices(g);
-        
-        // Loop through all vertices and mark the ones that are interclusterVertices
-        Vertex[] remainingVertices = new Vertex[g.vertices.length - 1 - interClusterVertices.length];
-        int insertedVertices = 0;
-        for (int i = 1; i < g.vertices.length; i++) {
-            int j = 0;
-            boolean isApproved = true;
-            while (j < interClusterVertices.length && isApproved) {
-                if (g.vertices[i] == interClusterVertices[j]) isApproved = false;
-                j++;
-            }
-            if (isApproved) {
-                remainingVertices[insertedVertices] = g.vertices[i];
-                insertedVertices ++;
-            }
+        //Construct the adjacency matrix
+        for (int i = 0; i < edges.length; i ++) {
+            adj[edges[i].u-1][edges[i].v-1] ++;
+            adj[edges[i].v-1][edges[i].u-1] ++;
         }
         
-        g.blankVertices = remainingVertices;
+        for (int i = 0; i < adj.length; i++) {
+            for (int j = 0; j < adj.length; j++) {
+                System.out.print(adj[i][j]);
+                if (j < adj.length - 1) System.out.print(", ");
+            }
+            System.out.println();
+        }
+        */
         g.RLFcoloring();
-        System.out.println("Colored vertices: " + g.coloredVertices.length);
-        System.out.println("Initial upper bound: " + g.findAssignedColors(g.vertices).length);
-        
-        g.blankVertices = interClusterVertices;
-        g.RLFcoloring();
-        System.out.println("Final upper bound: " + g.findAssignedColors(g.vertices).length);
-    }
-    
-    protected static void interClusterVerticesFirstColoring(Graph g) {
+        System.out.println("Control upper bound: " + g.findAssignedColors(g.vertices).length);
         
         g.resetColouring();
         
