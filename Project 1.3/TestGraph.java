@@ -179,16 +179,31 @@ public class TestGraph {
 				upperBound = UpperBound.newUpperBound(tmpUpperBound);
 			}
 			
+			// Check if chromatic number was found (where lowerBound == upperBound)
+			if (lowerBound == upperBound) {
+				ChromaticNumber.newChromaticNumber(lowerBound);
+			}
+			
 			//MaxDegree upper bound
 			tmpUpperBound = UpperBound.upperBound(graph, 2);
 			if (tmpUpperBound < upperBound) {
 				upperBound = UpperBound.newUpperBound(tmpUpperBound);
 			}
 			
+			// Check if chromatic number was found (where lowerBound == upperBound)
+			if (lowerBound == upperBound) {
+				ChromaticNumber.newChromaticNumber(lowerBound);
+			}
+			
 			//Simulated annealing upper bound
 			tmpUpperBound = UpperBound.upperBound(graph, 3);
 			if (tmpUpperBound < upperBound) {
 				upperBound = UpperBound.newUpperBound(tmpUpperBound);
+			}
+			
+			// Check if chromatic number was found (where lowerBound == upperBound)
+			if (lowerBound == upperBound) {
+				ChromaticNumber.newChromaticNumber(lowerBound);
 			}
 			
 			//Binary search for chromatic number
