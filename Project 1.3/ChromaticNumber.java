@@ -26,24 +26,20 @@ public class ChromaticNumber {
 			If it is, then we have a new upper bound, otherwise we have a new lower bound
 	*/
 	protected static void binarySearch(Graph g, int lowerBound, int upperBound) {
-		while (lowerBound != upperBound) {
-			if (permute(g.n, (int)(lowerBound + upperBound)/2)) {
-				upperBound = UpperBound.newUpperBound((int)((lowerBound + upperBound)/2));
-			}
-			else {
-				if (lowerBound != (int)((lowerBound + upperBound)/2)) {
-					lowerBound = LowerBound.newLowerBound((int)((lowerBound + upperBound)/2));
-				} else lowerBound = LowerBound.newLowerBound(upperBound);
-			}
-		}
+		int permuteResult = permute(g.n, upperBound-1, upperBound, lowerBound);
 		
-		newChromaticNumber(lowerBound);
+		if (permuteResult == -1) {
+			newChromaticNumber(upperBound);
+		}
+		else {
+			newChromaticNumber(permuteResult);
+		}
 	}
 
 	
 	/** Checks if there is a possible colouring with k colors or less
 	*/
-	protected static boolean permute(int n, int k) {
+	protected static int permute(int n, int k, int upperBound, int lowerBound) {
 		// Construct an array whereby indices represent vertices and values represent colours. Initialise with no colour
 		int[] colouring = new int[n]; 
 		for (int i = 0; i < n; i++) {
@@ -53,7 +49,8 @@ public class ChromaticNumber {
 		// Try all combinations and their permutations for vertices and colours
 		boolean isFeasible = false; 
 		int i = 0;
-		while (!isFeasible && i >= 0 && i < n) {
+		int result = upperBound;
+		while (i >= 0) {
 			// Loop through all possible colours for this vertex
 			int j = colouring[i] + 1;
 			colouring[i] = -1;
@@ -65,9 +62,9 @@ public class ChromaticNumber {
 				}
 			}
 			
-			// If no colour was found for this vertex move to previous vertex, move to the next vertex
+			// If no colour was found for this vertex move to previous vertex, else move to the next vertex
 			if (colouring[i] == -1) {
-				i--; 
+				i--;
 			} else {
 				i++;
 			}
@@ -75,10 +72,46 @@ public class ChromaticNumber {
 			// All vertices have been assigned a colour
 			if (i == n) {
 				isFeasible = true;
+				
+				//Compute the number of colors
+				ArrayList<Integer> colors = new ArrayList<Integer>();
+				int numColors = 0;
+				for (j = 0; j < colouring.length; j ++) {
+					boolean colorNotSeen = true;
+					int l = 0;
+					while (l < colors.size() && colorNotSeen) {
+						if (colouring[j] == colors.get(l)) {
+							colorNotSeen = false;
+						}
+						l ++;
+					}
+					
+					if (colorNotSeen) {
+						colors.add(colouring[j]);
+						numColors ++;
+					}
+				}
+				
+				//Compare the number of colors of this coloring to the potential previous colorings
+				if (numColors < result) {
+					//System.out.println("permute upper bound found !");
+					result = UpperBound.newUpperBound(numColors);
+					if (result == lowerBound) {
+						newChromaticNumber(result);
+					}
+					k = numColors - 1;
+				}
+				
+				colouring[i-1] = -1;
+				i -= 2;
 			}
 		}
 		
-		return isFeasible;
+		if (!isFeasible) {
+			result = -1;
+		}
+		
+		return result;
 	}
 	
 	/** Checks if the vertex at index vertexIndex in the coloring "colouring" can be colored in color "colour"
@@ -251,10 +284,12 @@ public class ChromaticNumber {
 		}
 		
 		if (is2colourable) {
-			for (i = 0; i < v.adjacentVertices.length; i ++) {
+			i = 0;
+			while (i < v.adjacentVertices.length && is2colourable) {
 				if (v.adjacentVertices[i].color == blankColor) {
 					is2colourable = colorVertexAndAdjacent(g, v.adjacentVertices[i]);
 				}
+				i ++;
 			}
 		}
 		
@@ -296,6 +331,9 @@ public class ChromaticNumber {
 			int oldX = 0;
 			int newX = i;
 			do {
+				if (seenInCycle[newX]) {
+					isCycle = false;
+				}
 				seenInCycle[newX] = true;
 				
 				//Search for the vertexIndex that is not the same as the previous one (to avoid a loop)
@@ -314,9 +352,9 @@ public class ChromaticNumber {
 						i ++;
 					}
 				}
-			} while (newX != i);
+			} while (newX != i && isCycle);
 			
-			isCycle = Arrays.equals(g.seen, seenInCycle);
+			if (isCycle) isCycle = Arrays.equals(g.seen, seenInCycle);
 		}
 		
 		return isCycle;
